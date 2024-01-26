@@ -13,3 +13,6 @@
 make main
 ./main
 ```
+
+## References
+- Hash function: http://www.cse.yorku.ca/~oz/hash.html
