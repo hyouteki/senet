@@ -43,7 +43,7 @@ _start:
   add dword [ciphertext.strlen], eax
 
   ;; aligning plaintext.ptr
-  mov ebx, 0
+  xor ebx, ebx
 
 .L6:
   cmp ebx, plaintext.strlen
@@ -67,12 +67,12 @@ _start:
   mov ebx, dword [ciphertext.strlen]  
   mov byte [ciphertext.ptr+ebx], 0
   mov ecx, 1 ; current_column
-  mov edx, 0 ; ciphertext_len
+  xor edx, edx ; ciphertext_len
   
 .L1:
   cmp ecx, dword [key.len]
   jg .L4
-  mov ebx, 0 ; offset for the current_column in the plaintext
+  xor ebx, ebx ; offset for the current_column in the plaintext
 
 .L2: ; calculating offset for current column
   cmp ecx, dword [key.ptr + 4*ebx]
@@ -99,8 +99,8 @@ _start:
 
 section '.data' writeable executable
 plaintext.ptr rb 256
-plaintext str "hello world"
-; plaintext str "hey you there can we take it to the next level baby do you dare - Naked by James Arthur"
+; plaintext str "hello world"
+plaintext str "hey you there can we take it to the next level baby do you dare - Naked by James Arthur"
 pt_len_t dd 0
 ciphertext.ptr rb 256 ; max ciphertext.len = 256
 ciphertext.len dd 0
