@@ -20,10 +20,26 @@ _start:
   inc ebx
   jmp .L0
 .L1:
-  xor rax, rax
-  mov rdi, msg
-  mov rsi, qword [hash]
-  call printf
+  ;; storing hash in the str
+  mov ebx, 19
+.L2: 
+  cmp ebx, -1
+  je .L3
+  mov rax, qword [hash]
+  xor rdx, rdx
+  mov rdi, 10
+  div rdi
+  mov qword [hash], rax
+  add rdx, 48
+  mov byte [hash.ptr+ebx], dl
+  dec ebx
+  jmp .L2
+.L3:
+  mov rax, 1
+  mov rdi, 1
+  mov esi, hash.ptr
+  mov edx, 20
+  syscall
   mov rax, 60
   xor rdi, rdi 
   syscall
@@ -34,3 +50,6 @@ plaintext.len = $ - plaintext.str
 plaintext.strlen = plaintext.len - 1
 hash rq 1
 msg db "Hash: %lu", 10, 0
+hash.maxlen dd 20
+hash.ptr rb 20 ;; = hash.maxlen
+NEG_ONE dd -1
