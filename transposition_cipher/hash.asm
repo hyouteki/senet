@@ -1,22 +1,35 @@
 format ELF64
   
 section '.text' executable  
-extrn printf
+public hash
 
-public _start
-_start:
+macro str.copy src, dst {
+  mov rsi, src
+  mov rdi, dst
+copy_loop:
+  lodsb
+  stosb
+  test al, al
+  jnz copy_loop
+}
+  
+hash:
+  ;; accepting inputs
+  mov dword [plaintext.strlen], esi
+  str.copy rdi, plaintext.str
+  ;; initializing variables
   xor ebx, ebx
-  mov qword [hash], 5381
+  mov qword [hash.val], 5381
 .L0:
   ;; hash = (hash * 33) ^ char
-  cmp ebx, plaintext.strlen
+  cmp ebx, dword [plaintext.strlen]
   je .L1
-  mov rcx, qword [hash]
-  shl qword [hash], 5
-  add qword [hash], rcx
+  mov rcx, qword [hash.val]
+  shl qword [hash.val], 5
+  add qword [hash.val], rcx
   xor rcx, rcx
   mov cl, byte [plaintext.str+ebx]
-  xor qword [hash], rcx
+  xor qword [hash.val], rcx
   inc ebx
   jmp .L0
 .L1:
@@ -25,31 +38,27 @@ _start:
 .L2: 
   cmp ebx, -1
   je .L3
-  mov rax, qword [hash]
+  mov rax, qword [hash.val]
   xor rdx, rdx
   mov rdi, 10
   div rdi
-  mov qword [hash], rax
+  mov qword [hash.val], rax
   add rdx, 48
   mov byte [hash.ptr+ebx], dl
   dec ebx
   jmp .L2
-.L3:
-  mov rax, 1
-  mov rdi, 1
-  mov esi, hash.ptr
-  mov edx, 20
-  syscall
-  mov rax, 60
-  xor rdi, rdi 
-  syscall
+.L3: ; return
+  mov rax, hash.ptr
+  ret
   
 section '.data' writable executable
-plaintext.str db "hello world", 0
-plaintext.len = $ - plaintext.str
-plaintext.strlen = plaintext.len - 1
-hash rq 1
-msg db "Hash: %lu", 10, 0
-hash.maxlen dd 20
-hash.ptr rb 20 ;; = hash.maxlen
-NEG_ONE dd -1
+;; compile time constants
+PLAINTEXT.MAX_LEN equ 256
+HASH.LEN equ 20
+;; reserved for inputs
+plaintext.str rb PLAINTEXT.MAX_LEN
+plaintext.strlen rd 1
+;; variables
+hash.val rq 1
+;; reserved for output
+hash.ptr rb HASH.LEN 
