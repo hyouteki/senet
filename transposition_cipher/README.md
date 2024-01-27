@@ -10,8 +10,9 @@
 ## Quick start
 - Install [FASM](https://flatassembler.net/download.php)
 ``` console
-make main
-./main
+make
+./enc
+./hash
 ```
 
 ## References

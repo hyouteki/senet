@@ -1,33 +1,18 @@
 format ELF64
   
 section '.text' executable  
+include 'helper.asm'
 extrn hash
-
-macro str.copy src, dst {
-  mov rsi, src
-  mov rdi, dst
-copy_loop:
-  lodsb
-  stosb
-  test al, al
-  jnz copy_loop
-}
-  
 public _start
   
 _start:
   mov rdi, plaintext.str
   mov rsi, plaintext.strlen
   call hash
-  str.copy rax, hash.ptr
-  mov rax, 1
-  mov rdi, 1
-  mov rsi, hash.ptr
-  mov rdx, 20
-  syscall
-  mov rax, 60
-  mov rdi, 0
-  syscall
+  mov r11, rax
+  str.copy hash.ptr, r11
+  str.print hash.ptr, 20
+  exit 0
   
 section '.data' writable executable
 ;; compile time constants

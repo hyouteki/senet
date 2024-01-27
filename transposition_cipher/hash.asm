@@ -1,22 +1,13 @@
 format ELF64
   
 section '.text' executable  
+include 'helper.asm'
 public hash
-
-macro str.copy src, dst {
-  mov rsi, src
-  mov rdi, dst
-copy_loop:
-  lodsb
-  stosb
-  test al, al
-  jnz copy_loop
-}
   
 hash:
   ;; accepting inputs
   mov dword [plaintext.strlen], esi
-  str.copy rdi, plaintext.str
+  str.copy plaintext.str, rdi
   ;; initializing variables
   xor ebx, ebx
   mov qword [hash.val], 5381
