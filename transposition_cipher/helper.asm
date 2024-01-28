@@ -60,3 +60,19 @@ intarray.copy.end:
   pop rdi
   pop rsi
 }
+
+macro intarray.getindex arr, num, len {
+  push rbx
+  push rsi
+  xor ebx, ebx
+intarray.getindex.loop:
+  mov esi, dword [arr+4*ebx]
+  cmp num, esi
+  je intarray.getindex.end
+  inc ebx
+  jmp intarray.getindex.loop
+intarray.getindex.end:
+  mov rax, rbx
+  pop rsi
+  pop rbx
+}

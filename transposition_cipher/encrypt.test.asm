@@ -2,7 +2,7 @@ format ELF64
 
 section '.text' executable
 include 'helper.asm'
-extrn enc
+extrn encrypt
 public _start
 
 _start:
@@ -10,7 +10,7 @@ _start:
   mov esi, plaintext.len
   mov rdx, key.ptr
   mov r10d, dword [key.len]
-  call enc
+  call encrypt
   mov r8, rax
   str.copy ciphertext.ptr, r8
   mov dword [ciphertext.len], r12d

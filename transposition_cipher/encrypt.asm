@@ -2,9 +2,9 @@ format ELF64
   
 section '.text' executable
 include 'helper.asm'
-public enc
+public encrypt
   
-enc:
+encrypt:
   ;; accepting inputs
   str.copy plaintext.ptr, rdi
   mov dword [plaintext.len], esi
