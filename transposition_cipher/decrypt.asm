@@ -19,14 +19,6 @@ decrypt:
   mov ebx, [key.len]
   div ebx
   mov dword [cycles], eax
-  xor ebx, ebx
-zeroinit:
-  cmp ebx, dword [ciphertext.len]
-  jg zeroinit.end
-  mov byte [plaintext.ptr+ebx], 48
-  inc ebx
-  jmp zeroinit
-zeroinit.end:
   ;; init ciphertext.itr
   xor rbx, rbx  
 decrypt.loop:
@@ -58,6 +50,7 @@ decrypt.trailing.dash.end:
   inc rbx
   mov byte [plaintext.ptr+rbx], 0
   mov rax, plaintext.ptr
+  inc rbx
   mov r12d, ebx
   ret
   

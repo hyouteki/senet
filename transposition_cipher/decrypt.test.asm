@@ -15,7 +15,7 @@ _start:
   str.copy plaintext.ptr, rbx
   mov dword [plaintext.len], r12d
   str.print plaintext.ptr, dword [plaintext.len]
-  exit dword [plaintext.len]
+  exit 0
   
 section '.data' writable executable
 ;; compile time constants
