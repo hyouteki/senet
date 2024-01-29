@@ -5,6 +5,7 @@ include 'helper.asm'
 public hash
   
 hash:
+  push.callee.save
   ;; accepting inputs
   mov dword [plaintext.strlen], esi
   str.copy plaintext.str, rdi
@@ -40,6 +41,7 @@ hash:
   jmp .L2
 .L3: ; return
   mov rax, hash.ptr
+  pop.callee.save
   ret
   
 section '.data' writable executable

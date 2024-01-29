@@ -1,14 +1,15 @@
 format ELF64
-  
-section '.text' executable
+
+section '.text'
 include 'helper.asm'
 public decrypt
 
 decrypt:
+  push.callee.save
   ;; accepting inputs
   str.copy ciphertext.ptr, rdi
   mov dword [ciphertext.len], esi
-  mov dword [key.len], r10d
+  mov dword [key.len], ecx
   intarray.copy key.ptr, rdx, dword [key.len]
   ;; init ciphertext.strlen
   mov dword [ciphertext.strlen], esi
@@ -20,7 +21,7 @@ decrypt:
   div ebx
   mov dword [cycles], eax
   ;; init ciphertext.itr
-  xor rbx, rbx  
+  xor rbx, rbx
 decrypt.loop:
   cmp ebx, dword [ciphertext.strlen]
   jge decrypt.end
@@ -50,14 +51,13 @@ decrypt.trailing.dash.end:
   inc rbx
   mov byte [plaintext.ptr+rbx], 0
   mov rax, plaintext.ptr
-  inc rbx
-  mov r12d, ebx
+  pop.callee.save
   ret
   
-section '.data' writable executable
+section '.data'
 ;; compile time constants
 MAX_LEN equ 256
-KEY_LEN equ 7
+MAX_KEY_LEN equ 7
 ;; variables
 plaintext.itr rq 1
 column dd 1
@@ -66,7 +66,7 @@ cycles dd 1
 ciphertext.ptr rb MAX_LEN
 ciphertext.len rd 1
 ciphertext.strlen rd 1
-key.ptr rd KEY_LEN
-key.len dd KEY_LEN
+key.ptr rd MAX_KEY_LEN
+key.len rd 1
 ;; reserved for outputs
 plaintext.ptr rb MAX_LEN
