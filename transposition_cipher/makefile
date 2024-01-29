@@ -14,7 +14,6 @@ brute:
 	fasm decrypt.asm decrypt.o
 	fasm hash.asm hash.o
 	gcc -no-pie brute.c decrypt.o hash.o -o brute
-	./brute
 
 clean:
 	$(RM) *.o encrypt decrypt hash brute

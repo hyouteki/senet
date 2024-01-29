@@ -3,7 +3,12 @@ format ELF64
 section '.text'
 include 'helper.asm'
 public decrypt
-
+public bye
+  
+bye:
+  mov rax, 60
+  syscall
+  
 decrypt:
   push.callee.save
   ;; accepting inputs
@@ -15,6 +20,7 @@ decrypt:
   mov dword [ciphertext.strlen], esi
   sub dword [ciphertext.strlen], 1
   ;; init cycles
+  mov dword [column], 1
   mov eax, dword [ciphertext.strlen]
   xor rdx, rdx
   mov ebx, [key.len]
@@ -57,10 +63,10 @@ decrypt.trailing.dash.end:
 section '.data'
 ;; compile time constants
 MAX_LEN equ 256
-MAX_KEY_LEN equ 7
+MAX_KEY_LEN equ 9
 ;; variables
 plaintext.itr rq 1
-column dd 1
+column rd 1
 cycles dd 1
 ;; reserved for inputs
 ciphertext.ptr rb MAX_LEN
