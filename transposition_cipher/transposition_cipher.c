@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define HASH_LEN 20
 #define MAX_KEY_LEN 9
@@ -78,10 +77,13 @@ void swap(int* a, int* b) {
 }
 
 int test(char* ciphertext, int* key, int key_len) {
-	/* char* plaintext = decrypt(ciphertext, slen(ciphertext), key, key_len); */
-	/* unsigned long plaintext_hash = hash(plaintext); */
-	/* return plaintext_hash == hash_val; */
-	return 0;
+	char* decrypted_text = decrypt(ciphertext, slen(ciphertext), key, key_len);
+	char* plaintext, *hash_val;
+	process_decryptedtext(decrypted_text, &plaintext, &hash_val);
+	int ans = hash(plaintext) == retransform_hash(hash_val);
+	free(plaintext);
+	free(hash_val);
+	return ans;
 }
 
 void printkey(int* key, int len) {
@@ -102,7 +104,13 @@ void brute_helper(char* ciphertext, int* key, int size, int n) {
 		if (test(ciphertext, key, n)) {
 			printf("Key: ");
 			printkey(key, n);
-			printf("Decrypted text: %s\n", decrypt(ciphertext, slen(ciphertext), key, n));
+			char* decrypted_text = decrypt(ciphertext, slen(ciphertext), key, n);
+			char* plaintext, *hash_val;
+			process_decryptedtext(decrypted_text, &plaintext, &hash_val);
+			printf("Plaintext: %s\n", plaintext);
+			printf("Hash: %s\n", hash_val);
+			free(plaintext);
+			free(hash_val);			
 			exit(0);
 		}
 		return;
@@ -150,7 +158,7 @@ char* transform_hash(unsigned long hash_val) {
 	return res;
 }
 
-unsigned long retranform_hash(char* hash_val) {
+unsigned long retransform_hash(char* hash_val) {
 	unsigned long x = 0;
 	char* ptr = hash_val;
 	while (*ptr != 0) {
@@ -192,15 +200,14 @@ int main(int argc, char** argv) {
 		free(plaintext);
 		free(hash_val);
 	} else if (scmp(argv[1], "hash")) {
-		printf("Hash: %s\n", transform_hash(hash(argv[1])));
+		printf("Hash: %s\n", transform_hash(hash(argv[2])));
 	} else if (scmp(argv[1], "bruteforce")) {
 		char* ciphertext = argv[2];
-		/* unsigned long hash_val = process_ciphertext(&text); */
 		printf("Ciphertext: %s\n", ciphertext);
-		/* printf("Hash: "); */
-		/* printhash(hash_val); */
-		/* brute(text, hash_val); */
-		/* free(text); */
+		brute(ciphertext);
+	} else {
+		printf("error: invalid subcommand\n");
+		exit(1);
 	}
-	return 0;
+ 	return 0;
 }

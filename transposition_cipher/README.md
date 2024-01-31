@@ -13,36 +13,32 @@
   ./transposition_cipher encrypt "<plaintext>" <key_len> <space-seperated-key>
   ./transposition_cipher encrypt "helloworld" 7 2 3 1 4 6 5 7
   
-  Plaintext: helloworld
-  Key: 2 3 1 4 6 5 7
-  Ciphertext: ldhrellzwzozoz08243144737587623493
+  Plaintext: helloworldaicedbeehdhfihgcdejd
+  Ciphertext: ldehzhrdfjelbidlaegzwcddzoihczoehez
   ```
 - __Decryption__
   ``` console
   ./transposition_cipher decrypt "<ciphertext>" <key_len> <space-seperated-key>
-  ./transposition_cipher decrypt "ldhrellzwzozoz08243144737587623493" 7 2 3 1 4 6 5 7
+  ./transposition_cipher decrypt "ldehzhrdfjelbidlaegzwcddzoihczoehez" 7 2 3 1 4 6 5 7
   
-  Ciphertext: ldhrellzwzozoz
-  Hash: 08243144737587623493
-  Key: 2 3 1 4 6 5 7
   Plaintext: helloworld
+  Hash: aicedbeehdhfihgcdejd
   ```
 - __Hash__
   ``` console
   ./transposition_cipher hash "<plaintext>"
   ./transposition_cipher hash "helloworld"
   
-  Hash: 08243144737587623493
+  Hash: aicedbeehdhfihgcdejd
   ```
 - __Brute force__
   ``` console
   ./transposition_cipher bruteforce "<ciphertext>"
-  ./transposition_cipher bruteforce "ldhrellzwzozoz08243144737587623493"
+  ./transposition_cipher bruteforce "ldehzhrdfjelbidlaegzwcddzoihczoehez"
   
-  Ciphertext: ldhrellzwzozoz
-  Hash: 08243144737587623493
   Key: 2 3 1 4 6 5 7
-  Decrypted text: helloworld
+  Plaintext: helloworld
+  Hash: aicedbeehdhfihgcdejd
   ```
 
 ## Quick start

@@ -3,11 +3,6 @@ format ELF64
 section '.text'
 include 'helper.asm'
 public decrypt
-public bye
-  
-bye:
-  mov rax, 60
-  syscall
   
 decrypt:
   push.callee.save
