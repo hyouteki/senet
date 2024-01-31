@@ -9,7 +9,7 @@ encrypt:
   ;; accepting inputs
   str.copy plaintext.ptr, rdi
   mov dword [plaintext.len], esi
-  mov dword [key.len], r10d
+  mov dword [key.len], ecx
   intarray.copy key.ptr, rdx, dword [key.len]
   ;; initializing variables
   mov dword [plaintext.strlen], esi
@@ -37,7 +37,7 @@ encrypt:
 .L7:
   cmp ebx, dword [ciphertext.strlen]
   je .L8
-  mov byte [plaintext.ptr+ebx], '-'
+  mov byte [plaintext.ptr+ebx], 'z' ; padding character = 'z'
   inc ebx
   jmp .L7
 .L8:
@@ -70,7 +70,6 @@ encrypt:
 .L4: ; return
   mov rax, ciphertext.ptr
   pop.callee.save
-  ; mov r12d, dword [ciphertext.len]
   ret
 
 section '.data' writeable executable

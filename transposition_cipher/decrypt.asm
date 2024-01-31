@@ -46,14 +46,14 @@ decrypt.plaintext.append.end:
   add ebx, dword [cycles]
   inc dword [column]
   jmp decrypt.loop
-decrypt.end: ; removing trailing '-'(s)
+decrypt.end: ; removing padding
   dec rbx
-decrypt.trailing.dash.loop:
-  cmp byte [plaintext.ptr+rbx], '-'
-  jne decrypt.trailing.dash.end
+decrypt.padding.loop:
+  cmp byte [plaintext.ptr+rbx], 'z' ; padding character = 'z'
+  jne decrypt.padding.end
   dec rbx
-  jmp decrypt.trailing.dash.loop
-decrypt.trailing.dash.end:
+  jmp decrypt.padding.loop
+decrypt.padding.end:
   inc rbx
   mov byte [plaintext.ptr+rbx], 0
   mov rax, plaintext.ptr

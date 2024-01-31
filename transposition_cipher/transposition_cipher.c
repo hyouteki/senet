@@ -7,6 +7,7 @@
 
 extern char* decrypt(char*, int, int*, int);
 extern unsigned long hash(char*);
+extern char* encrypt(char*, int, int*, int);
 extern int bye(int);
 
 unsigned long stoul(char*);
@@ -18,6 +19,7 @@ void brute(char*, unsigned long);
 int* resetkey(int*, int);
 void printkey(int*, int);
 unsigned long process_ciphertext(char** text);
+void printhash(unsigned long);
 
 unsigned long stoul(char* hash_val) {
 	unsigned long x = 0;
@@ -113,16 +115,54 @@ unsigned long process_ciphertext(char** text) {
 	return hash_val;
 }
 
+void printhash(unsigned long hash_val) {
+	unsigned long x = hash_val;
+	int digits = 0;
+	while (x) {
+		x /= 10;
+		++digits;
+	}
+	for (int i = 0; i < HASH_LEN-digits; ++i) {
+		printf("0");
+	}
+	printf("%lu\n", hash_val);
+}
+
 int main(int argc, char** argv) {
 	if (scmp(argv[1], "encrypt")) {
-		printf("encrypt\n");
-	} else if (scmp(argv[1], "hash")) {
-		printf("%lu\n", hash(argv[2]));
-	} else if (scmp(argv[1], "brute")) {
+		int key_len = (int) stoul(argv[3]);
+		int key[key_len];
+		for (int i = 0; i < key_len; ++i) {
+			key[i] = (int) stoul(argv[i+4]);
+		}
+		printf("Plaintext: %s\n", argv[2]);
+		printf("Key: ");
+		printkey(key, key_len);
+		printf("Ciphertext: %s", encrypt(argv[2], slen(argv[2]), key, key_len));
+		printhash(hash(argv[2]));
+	} else if (scmp(argv[1], "decrypt")) {
 		char* text = argv[2];
 		unsigned long hash_val = process_ciphertext(&text);
 		printf("Ciphertext: %s\n", text);
-		printf("Hash: %lu\n", hash_val);
+		printf("Hash: ");
+		printhash(hash_val);
+		int key_len = (int) stoul(argv[3]);
+		int key[key_len];
+		for (int i = 0; i < key_len; ++i) {
+			key[i] = (int) stoul(argv[i+4]);
+		}
+		printf("Key: ");
+		printkey(key, key_len);
+		printf("Plaintext: %s\n", decrypt(text, slen(text), key, key_len));
+	} else if (scmp(argv[1], "hash")) {
+		printf("Hash: ");
+		printhash(hash(argv[2]));
+	} else if (scmp(argv[1], "bruteforce")) {
+		char* text = argv[2];
+		unsigned long hash_val = process_ciphertext(&text);
+		printf("Ciphertext: %s\n", text);
+		printf("Hash: ");
+		printhash(hash_val);
 		brute(text, hash_val);
 		free(text);
 	}

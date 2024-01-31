@@ -4,16 +4,50 @@
 > Here assume that the key length is known to be 9 or less.
 
 ## Assumptions
-- Max cipher text length 256 (Hardcoded can be increased).
-- Character set: Every ascii character except for '-' which is reserved for padding.
+- Max plaintext and ciphertext length 256 (Hardcoded can be increased).
+- Character set: All lowercase english alphabets except for 'z' which is reserved for padding.
+
+## Guide
+- __Encryption__
+  ``` console
+  ./transposition_cipher encrypt "<plaintext>" <key_len> <space-seperated-key>
+  ./transposition_cipher encrypt "helloworld" 7 2 3 1 4 6 5 7
+  
+  Plaintext: helloworld
+  Key: 2 3 1 4 6 5 7
+  Ciphertext: ldhrellzwzozoz08243144737587623493
+  ```
+- __Decryption__
+  ``` console
+  ./transposition_cipher decrypt "<ciphertext>" <key_len> <space-seperated-key>
+  ./transposition_cipher decrypt "ldhrellzwzozoz08243144737587623493" 7 2 3 1 4 6 5 7
+  
+  Ciphertext: ldhrellzwzozoz
+  Hash: 08243144737587623493
+  Key: 2 3 1 4 6 5 7
+  Plaintext: helloworld
+  ```
+- __Hash__
+  ``` console
+  ./transposition_cipher hash "<plaintext>"
+  ./transposition_cipher hash "helloworld"
+  
+  Hash: 08243144737587623493
+  ```
+- __Brute force__
+  ``` console
+  ./transposition_cipher bruteforce "<ciphertext>"
+  ./transposition_cipher bruteforce "ldhrellzwzozoz08243144737587623493"
+  
+  Ciphertext: ldhrellzwzozoz
+  Hash: 08243144737587623493
+  Key: 2 3 1 4 6 5 7
+  Decrypted text: helloworld
+  ```
 
 ## Quick start
 - Install [FASM](https://flatassembler.net/download.php)
-``` console
-make
-./enc
-./hash
-```
+- Build the project using `make`
 
 ## References
 - Hash function: http://www.cse.yorku.ca/~oz/hash.html
