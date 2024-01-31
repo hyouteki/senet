@@ -5,6 +5,7 @@ include 'helper.asm'
 public encrypt
   
 encrypt:
+  push.callee.save
   ;; accepting inputs
   str.copy plaintext.ptr, rdi
   mov dword [plaintext.len], esi
@@ -68,7 +69,8 @@ encrypt:
   jmp .L1
 .L4: ; return
   mov rax, ciphertext.ptr
-  mov r12d, dword [ciphertext.len]
+  pop.callee.save
+  ; mov r12d, dword [ciphertext.len]
   ret
 
 section '.data' writeable executable

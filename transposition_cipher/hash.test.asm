@@ -10,8 +10,7 @@ _start:
   mov rsi, plaintext.strlen
   call hash
   mov r11, rax
-  str.copy hash.ptr, r11
-  str.print hash.ptr, 20
+  str.print r11, 20
   exit 0
   
 section '.data' writable executable
