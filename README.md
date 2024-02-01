@@ -59,7 +59,7 @@ The djb2 hash function, created by Daniel J. Bernstein, is known for its simplic
         unsigned long hash = 5381;
         int c;
         while (c = *str++)
-            hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+            hash = ((hash << 5)+ hash) ^ c; /* (hash * 33) ^ c */
         return hash;
     }
 ```
