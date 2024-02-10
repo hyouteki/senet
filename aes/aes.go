@@ -1,86 +1,64 @@
 package main
+import "fmt"
 
-import (
-	"fmt"
-)
+type word [4]byte
+type key [4]word
 
-func rotate_word(word [4]byte) [4]byte {
-	var rotated_word [4]byte 
+func rotate_word(w word) word {
+	var rotated_w word
 	for i := 0; i < 3; i++ {
-		rotated_word[i] = word[i+1]
+		rotated_w[i] = w[i+1]
 	}
-	rotated_word[3] = word[0]
-	return rotated_word
+	rotated_w[3] = w[0]
+	return rotated_w
 }
 
-func sub_word(word [4]byte, box [256]byte) [4]byte {
-	var new_word [4]byte
+func sub_word(w word, box [256]byte) word {
+	var new_w word
 	for i := 0; i < 4; i++ {
-		new_word[i] = box[word[i]]
+		new_w[i] = box[w[i]]
 	}
-	return new_word
+	return new_w
 }
 
-func byte_array_to_words(array [16]byte) [4][4]byte {
-	var words [4][4]byte
+func xor_words(w1 word, w2 word) word {
+	var new_w word
 	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			words[i][j] = array[i+4*j] 
-		}
+		new_w[i] = w1[i] ^ w2[i]
 	}
-	return words
+	return new_w
 }
 
-func words_to_byte_array(words [4][4]byte) [16]byte {
-	var array [16]byte
+func make_key(str string) key {
+	var k key
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
-			array[i+4*j] = words[i][j]
+			k[i][j] = byte(str[i+4*j]) 
 		}
 	}
-	return array
+	return k
 }
 
-func xor_words(word1 [4]byte, word2 [4]byte) [4]byte {
-	var new_word [4]byte
-	for i := 0; i < len(word1); i++ {
-		new_word[i] = word1[i] ^ word2[i]
-	}
-	return new_word
-}
-
-func make_key(str string) [16]byte {
-	var key [16]byte
-	for i, ch := range str {
-		key[i] = byte(ch)
-	}
-	return key
-}
-
-func expand_key(key [16]byte) [11][16]byte {
-	var expanded_key [11][16]byte
-	for i, num := range key {
-		expanded_key[0][i] = num
-	}
+func expand_key(k0 key) [11]key {
+	var keys [11]key
+	keys[0] = k0
 	var round_constants_val = [10]byte {1, 2, 4, 8, 16, 32, 64, 128, 27, 54}
-	var round_constants [10][4]byte
+	var round_constants [10]word
     for i, x := range round_constants_val {
         round_constants[i][0] = x
     }
 	for i := 0; i < 10; i++ {
-		pre_words := byte_array_to_words(expanded_key[i])
-		var new_words [4][4]byte
-		pre := rotate_word(pre_words[3])
+		var ki key
+		pre := rotate_word(keys[i][3])
 		pre = sub_word(pre, sbox)
 		pre = xor_words(pre, round_constants[i])
-		for i := 0; i < 4; i++ {
-			new_words[i] = xor_words(pre, pre_words[i])
+		for j := 0; j < 4; j++ {
+			ki[j] = xor_words(pre, keys[i][j])
+			pre = ki[j]
 		}
-		for j, x := range words_to_byte_array(new_words) {
-			expanded_key[i+1][j] = x
-		}
+		keys[i+1] = ki
 	} 
-	return expanded_key
+	return keys
 }
 
 func main() {
