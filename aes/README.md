@@ -5,6 +5,4 @@
   - Verify that the output of 1st encryption round is same as output of the 9th decryption round.
   - Verify that the output of 9th encryption round is same as output of the 1st decryption round.
 
-## Quick start
-- Install [GO!](https://go.dev/doc/install)
-- Build the project using `make`
+![Thumbnail](./images/thumbnail.png)
