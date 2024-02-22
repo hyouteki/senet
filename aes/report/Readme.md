@@ -1,20 +1,20 @@
 > CSE350/550: Network Security - Programming Assignment no. 2<br>
 > (c) Ankit Kumar (2021015) & Lakshay Chauhan (2021060)
 
-## 1. Introduction
 We were required to develop a program to encrypt (and similarly decrypt) a 128-bit plaintext using AES that uses keys
 of size 128 bit, and 10 rounds.
 
 The whole code is divided into various functions involving helper functions, aes helper functions, encryption and decryption functions.
 
-1.	Initialization and S-Boxes: The constructor initializes the AES object with a 128-bit key (16 characters) and loads the substitution boxes (S-box for encryption and inverse S-box for decryption) from external files. These S-boxes are used for the byte substitution step.
-2.	Utility Functions:
-    - `printHex` displays blocks of data in hexadecimal format.
-    - `multiplyWithinGaloisField` performs `multiplication` in the Galois field, essential for the mix columns step.
-    - `arrayToMatrix` and `matrixToArray` convert between linear arrays and 4x4 matrices, facilitating operations that work with AES state matrices.
-3.	Key Expansion:
-1.	Key Expansion  
-    - Before the actual encryption process begins, the input key undergoes an expansion using the `keyExpansion` method. This process generates a series of round keys from the initial key. Each round key is derived from the previous one through a combination of byte substitution (using the S-box), byte rotation, and XOR operations with a round constant.
+## 1.	Initialization and S-Boxes: 
+The constructor initializes the AES object with a 128-bit key (16 characters) and loads the substitution boxes (S-box for encryption and inverse S-box for decryption) from external files. These S-boxes are used for the byte substitution step.
+## 2.	Utility Functions:
+
+- `printHex` displays blocks of data in hexadecimal format.
+- `multiplyWithinGaloisField` performs `multiplication` in the Galois field,essential for the mix columns step.
+- `arrayToMatrix` and `matrixToArray` convert between linear arrays and 4x4 matrices, facilitating operations that work with AES state matrices.
+## 3.	Key Expansion: 
+- Before the actual encryption process begins, the input key undergoes an expansion using the `keyExpansion` method. This process generates a series of round keys from the initial key. Each round key is derived from the previous one through a combination of byte substitution (using the S-box), byte rotation, and XOR operations with a round constant.
 
 ## 4. Encrption:
 ![alt text](./Images/image.png)
@@ -45,42 +45,43 @@ The `InvMixColumns` step is performed after the `AddRoundKey` step, which is a r
 4.	Final Round (10th Round):
     - The final round includes `InvShiftRows`, `InvSubBytes`, and `AddRoundKey`, omitting the `InvMixColumns` step.
 
-6. Testing and Verification: The program includes facilities to debug and print intermediate states in hexadecimal format, aiding in the verification of:
+## 6. Testing and Verification: 
+
+The program includes facilities to debug and print intermediate states in hexadecimal format, aiding in the verification of:
     - The correctness of the encryption by decrypting the ciphertext and comparing it to the original plaintext.
     - The equivalence of the output of the 1st encryption round with the output of the 9th decryption round, and vice versa for the 9th encryption round and the 1st decryption round.
 
 
-7. Testcases
+## 7. Testcases
 
-    a. **Testcase 1**: 
-        - **Plaintext**: nosferatuoforava
-        - **Key**: heyyoutherecanwe
-        - **Ciphertext**: 3341b00b438214de68e7dc36522a4c64
-        - Encryption:
-        ![alt text](./Images/image-1.png)
-        - Decryption:
-        ![alt text](./Images/image-9.png)
-
-    b. **Testcase 2**:
-        - **Plaintext**: ankitkumarkitkat
-        - **Key**: onepiece is real
-        - **Ciphertext**: 841ce41c7dfee8128986c2d554993453
-        - Encryption:
-        ![alt text](./Images/image-3.png)
-        - Decryption:
-        ![alt text](./Images/image-8.png)
-    c. **Testcase 1**: 
-        - **Plaintext**: bijendranathjain
-        - **Key**: pretty cool prof
-        - **Ciphertext**: 4593374e10f0f25b80acc630f4675c63
-        - Encryption:
-        ![alt text](./Images/image-4.png)
-        - Decryption:
-        ![alt text](./Images/image-7.png)
-    d. **Testcase 2**:
-        - **Plaintext**: network security
-        - **Key**: winter2024course
-        - **Ciphertext**: 2e9a6bf909a7198ded59af9c1fa5946e
+- **Testcase 1**:   
+    - **Plaintext**: nosferatuoforava  
+    - **Key**: heyyoutherecanwe  
+    - **Ciphertext**: 3341b00b438214de68e7dc36522a4c64  
+    - Encryption:
+    ![alt text](./Images/image-1.png)
+    - Decryption:
+    ![alt text](./Images/image-9.png)
+- **Testcase 2**:
+    - **Plaintext**: ankitkumarkitkat  
+    - **Key**: onepiece is real  
+    - **Ciphertext**: 841ce41c7dfee8128986c2d554993453  
+    - Encryption:
+    ![alt text](./Images/image-3.png)
+    - Decryption:
+    ![alt text](./Images/image-8.png)
+- **Testcase 3**: 
+    - **Plaintext**: bijendranathjain  
+    - **Key**: pretty cool prof  
+    - **Ciphertext**: 4593374e10f0f25b80acc630f4675c63  
+    - Encryption:
+    ![alt text](./Images/image-4.png)
+    - Decryption:
+    ![alt text](./Images/image-7.png)
+- **Testcase 4**:
+    - **Plaintext**: network security  
+    - **Key**: winter2024course  
+    - **Ciphertext**: 2e9a6bf909a7198ded59af9c1fa5946e  
         - Encryption:
         ![alt text](./Images/image-5.png)
         - Decryption:
