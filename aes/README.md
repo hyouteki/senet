@@ -5,4 +5,4 @@
   - Verify that the output of 1st encryption round is same as output of the 9th decryption round.
   - Verify that the output of 9th encryption round is same as output of the 1st decryption round.
 
-![Thumbnail](./report/images/thumbnail.png)
+![Thumbnail](/aes/report/Images/thumbnail.png)
