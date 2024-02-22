@@ -18,7 +18,7 @@ The constructor initializes the AES object with a 128-bit key (16 characters) an
 
 ## 4. Encrption:
 ![alt text](./Images/image.png)
-<br>
+<br><br><br>
 1.	Initial Round
     - `AddRoundKey`: The first operation of the encryption process is to XOR the plaintext block with the initial round key (derived from the key expansion process).
 2.	Main Rounds (1 to 9): Each of these rounds includes the following four steps
