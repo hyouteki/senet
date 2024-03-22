@@ -24,11 +24,17 @@ Large Large_add(Large, Large);
 Large Large_sub(Large, Large);
 Large Large_mul(Large, Large);
 Large Large_div(Large, Large);
+Large Large_mod(Large, Large);
+Large Large_shl(Large, unsigned int);
+Large Large_shr(Large, unsigned int);
+unsigned int Large_last_digit(Large);
+Large Large_mul_mod(Large, Large, Large);
 void Large_print(Large);
 
 #define Large_fmt "%.*s"
 #define Large_zero (Large) {.string = "0", .len = 1}
 #define Large_one (Large) {.string = "1", .len = 1}
+#define Large_two (Large) {.string = "2", .len = 1}
 
 #define gen_string(len) ((char *) malloc(sizeof(char)*len))
 
@@ -202,6 +208,61 @@ Large Large_div(Large l1, Large l2) {
 	}
 	len = remove_leading_zeroes(&quotient, len);
 	return Large_new(quotient, len);
+}
+
+Large Large_mod(Large l1, Large l2) {
+	assert(!Large_equal(l2, Large_zero) && "ZeroDivisionError: l2 = 0");
+	if (Large_smaller(l1, l2)) return Large_zero;
+	if (Large_equal(l1, l2)) return Large_one;
+
+	int i = 0;
+	Large dividend = Large_zero, Large_ten = Large_from_uint(10);
+	for (; i < l1.len && Large_smaller(Large_add(Large_mul(dividend, Large_ten), Large_from_uint(l1.string[i]-'0')), l2); ++i) {
+		dividend = Large_add(Large_mul(dividend, Large_ten), Large_from_uint(l1.string[i]-'0'));
+	}
+
+	unsigned int len = 0;
+	for (; i < l1.len; ++i) {
+		dividend = Large_add(Large_mul(dividend, Large_ten), Large_from_uint(l1.string[i]-'0'));
+		int factor = 9;
+		for (; Large_greater(Large_mul(Large_from_uint(factor), l2), dividend); --factor);
+		dividend = Large_sub(dividend, Large_mul(Large_from_uint(factor), l2));
+	}
+	dividend.len = remove_leading_zeroes(&dividend.string, dividend.len);
+	return dividend;
+}
+
+Large Large_shl(Large l, unsigned int n) {
+	Large result = l;
+	while (n) {
+		result = Large_mul(result, Large_two);
+		--n;
+	}
+	return result;
+}
+
+Large Large_shr(Large l, unsigned int n) {
+	Large result = l;
+	while (n) {
+		result = Large_div(result, Large_two);
+		--n;
+	}
+	return result;
+}
+
+unsigned int Large_last_digit(Large l) {
+	return l.string[l.len-1]-'0';
+}
+
+Large Large_mul_mod(Large l1, Large l2, Large mod) {
+	Large result = Large_zero;
+	while (!Large_equal(l1, Large_zero)) {
+		if (Large_last_digit(l1) & 1)
+			result = Large_mod(Large_add(result, l2), mod);
+		l1 = Large_shr(l1, 1);
+		l2 = Large_mod(Large_shl(l2, 1), mod);
+	}
+	return result;
 }
 
 void Large_print(Large l1) {

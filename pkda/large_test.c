@@ -6,24 +6,48 @@
 
 int main() {
 	Large l1 = Large_new("1000", 4);
-	Large l2 = Large_new("448", 3);
-	Large l3 = Large_add(l1, l2);
-	Large l4 = Large_sub(l1, l1);
-	Large l5 = Large_new("0000", 4);
-	Large l6 = Large_sub(l1, l2);
-	Large l7 = Large_mul(l2, l1);
-	Large l8 = Large_from_uint(180);
-	Large l9 = Large_div(l1, l2);
-	Large l10 = Large_div(Large_from_uint(4568), Large_from_uint(1142));
-
 	assert_large_equal(l1, 1000);
+	
+	Large l2 = Large_new("448", 3);
 	assert_large_equal(l2, 448);
+	
+	Large l3 = Large_add(l1, l2);
 	assert_large_equal(l3, 1448);
+		
+	Large l4 = Large_sub(l1, l1);
 	assert_large_equal(l4, 0);
+		
+	Large l5 = Large_new("0000", 4);
 	assert_large_equal(l5, 0);
+	
+	Large l6 = Large_sub(l1, l2);
 	assert_large_equal(l6, 552);
-	assert_large_equal(l7, 448000);
+	
+	Large l7 = Large_mul(l2, l1);
+    assert_large_equal(l7, 448000);
+	
+	Large l8 = Large_from_uint(180);
 	assert_large_equal(l8, 180);
+	
+	Large l9 = Large_div(l1, l2);
 	assert_large_equal(l9, 2);
+	
+	Large l10 = Large_div(Large_from_uint(4568), Large_from_uint(1142));
 	assert_large_equal(l10, 4);
+	
+	Large l11 = Large_shl(Large_from_uint(32), 4);
+	assert_large_equal(l11, 512);
+	
+	Large l12 = Large_shr(l2, 5);
+	assert_large_equal(l12, 14);
+	assert_large_equal(l2, 448);
+		
+	Large l13 = Large_mod(Large_from_uint(4568), Large_from_uint(1175));
+	assert_large_equal(l13, 1043);
+
+	assert(Large_last_digit(l2) == 8);
+	
+	Large l14 = Large_mul_mod(l1, l2, Large_from_uint(147));
+	Large_print(l14);
+	assert_large_equal(l14, 91);
 }
