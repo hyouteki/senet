@@ -24,7 +24,7 @@ int main() {
 	assert_large_equal(l6, 552);
 	
 	Large l7 = Large_mul(l2, l1);
-    assert_large_equal(l7, 448000);
+	assert_large_equal(l7, 448000);
 	
 	Large l8 = Large_from_uint(180);
 	assert_large_equal(l8, 180);
@@ -60,4 +60,14 @@ int main() {
 
 	Large l15 = Large_pow_mod(Large_from_uint(3), Large_from_uint(9), Large_from_uint(845));
 	assert_large_equal(l15, 248);
+
+	Large l16 = Large_pow(Large_from_uint(3), 12);
+	assert_large_equal(l16, 531441);
+
+	assert_large_equal(Large_mod(Large_random_odd(78), Large_two), 1);
+
+	Large l17 = l16;
+	l17 = Large_add(l17, Large_one);
+	assert_large_equal(l16, 531441);
+	assert_large_equal(l17, 531442);
 }

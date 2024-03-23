@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
 
 typedef struct Large {
 	char *string;
@@ -27,9 +28,11 @@ Large Large_div(Large, Large);
 Large Large_mod(Large, Large);
 Large Large_shl(Large, unsigned int);
 Large Large_shr(Large, unsigned int);
+Large Large_pow(Large, unsigned int);
 unsigned int Large_last_digit(Large);
 Large Large_mul_mod(Large, Large, Large);
 Large Large_pow_mod(Large, Large, Large);
+Large Large_random_odd(unsigned int);
 void Large_print(Large);
 
 #define Large_fmt "%.*s"
@@ -251,6 +254,16 @@ Large Large_shr(Large l, unsigned int n) {
 	return result;
 }
 
+Large Large_pow(Large base, unsigned int expo) {
+	Large result = Large_one;
+	while (expo) {
+		if (expo & 1) result = Large_mul(result, base);
+		base = Large_mul(base, base);
+		expo >>= 1;
+	}
+	return result;
+}
+
 unsigned int Large_last_digit(Large l) {
 	return l.string[l.len-1]-'0';
 }
@@ -273,6 +286,15 @@ Large Large_pow_mod(Large base, Large expo, Large mod) {
 	result = Large_mul_mod(result, result, mod);
 	if (Large_last_digit(expo) & 1)
 		result = Large_mul_mod(result, base, mod);
+	return result;
+}
+
+Large Large_random_odd(unsigned int bit_size) {
+	srand(time(NULL));
+	Large result = Large_one, l2 = Large_two;
+	for (int i = 1; i < bit_size-1; ++i)
+		if (rand() & 1) result = Large_add(result, Large_pow(l2, i));
+	result = Large_add(result, Large_pow(l2, bit_size-1));
 	return result;
 }
 
