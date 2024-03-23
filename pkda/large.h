@@ -29,6 +29,7 @@ Large Large_shl(Large, unsigned int);
 Large Large_shr(Large, unsigned int);
 unsigned int Large_last_digit(Large);
 Large Large_mul_mod(Large, Large, Large);
+Large Large_pow_mod(Large, Large, Large);
 void Large_print(Large);
 
 #define Large_fmt "%.*s"
@@ -255,14 +256,23 @@ unsigned int Large_last_digit(Large l) {
 }
 
 Large Large_mul_mod(Large l1, Large l2, Large mod) {
-	Large result = Large_zero;
-	Large l0 = Large_zero;
+	Large result = Large_zero, l0 = Large_zero;
 	while (!Large_equal(l1, l0)) {
 		if (Large_last_digit(l1) & 1)
 			result = Large_mod(Large_add(result, l2), mod);
 		l1 = Large_shr(l1, 1);
 		l2 = Large_mod(Large_shl(l2, 1), mod);
 	}
+	return result;
+}
+
+Large Large_pow_mod(Large base, Large expo, Large mod) {
+	if (Large_equal(expo, Large_zero)) return Large_one;
+	base = Large_mod(base, mod);
+	Large result = Large_pow_mod(base, Large_div(expo, Large_two), mod);
+	result = Large_mul_mod(result, result, mod);
+	if (Large_last_digit(expo) & 1)
+		result = Large_mul_mod(result, base, mod);
 	return result;
 }
 

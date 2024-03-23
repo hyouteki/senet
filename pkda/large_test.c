@@ -57,4 +57,7 @@ int main() {
 	l14 = Large_add(l14, Large_from_uint(9));
 	assert_large_equal(l1, 1000);
 	assert_large_equal(l14, 100);
+
+	Large l15 = Large_pow_mod(Large_from_uint(3), Large_from_uint(9), Large_from_uint(845));
+	assert_large_equal(l15, 248);
 }
