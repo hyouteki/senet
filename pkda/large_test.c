@@ -42,12 +42,19 @@ int main() {
 	assert_large_equal(l12, 14);
 	assert_large_equal(l2, 448);
 		
-	Large l13 = Large_mod(Large_from_uint(4568), Large_from_uint(1175));
-	assert_large_equal(l13, 1043);
+	Large l13 = Large_mod(l2, Large_from_uint(147));
+	assert_large_equal(l13, 7);
 
 	assert(Large_last_digit(l2) == 8);
-	
+
+	assert_large_equal(l1, 1000);
+	assert_large_equal(l2, 448);
 	Large l14 = Large_mul_mod(l1, l2, Large_from_uint(147));
-	Large_print(l14);
+	assert_large_equal(l1, 1000);
+	assert_large_equal(l2, 448);
 	assert_large_equal(l14, 91);
+
+	l14 = Large_add(l14, Large_from_uint(9));
+	assert_large_equal(l1, 1000);
+	assert_large_equal(l14, 100);
 }

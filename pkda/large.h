@@ -212,8 +212,8 @@ Large Large_div(Large l1, Large l2) {
 
 Large Large_mod(Large l1, Large l2) {
 	assert(!Large_equal(l2, Large_zero) && "ZeroDivisionError: l2 = 0");
-	if (Large_smaller(l1, l2)) return Large_zero;
-	if (Large_equal(l1, l2)) return Large_one;
+	if (Large_smaller(l1, l2)) return l1;
+	if (Large_equal(l1, l2)) return Large_zero;
 
 	int i = 0;
 	Large dividend = Large_zero, Large_ten = Large_from_uint(10);
@@ -256,7 +256,8 @@ unsigned int Large_last_digit(Large l) {
 
 Large Large_mul_mod(Large l1, Large l2, Large mod) {
 	Large result = Large_zero;
-	while (!Large_equal(l1, Large_zero)) {
+	Large l0 = Large_zero;
+	while (!Large_equal(l1, l0)) {
 		if (Large_last_digit(l1) & 1)
 			result = Large_mod(Large_add(result, l2), mod);
 		l1 = Large_shr(l1, 1);
