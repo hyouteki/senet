@@ -1,8 +1,7 @@
-default: rsa
+default: build
 
-rsa: rsa.c
+build: rsa.c
 	gcc rsa.c -o rsa -lgmp
-	./rsa genkeys
 
 clean:
-	$(RM) rsa 
+	$(RM) rsa *.txt
