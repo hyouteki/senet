@@ -1,12 +1,8 @@
-default: large_test
+default: rsa
 
-large_test:
-	gcc large_test.c -o large_test
-	./large_test
-
-prime_test:
-	gcc main.c -o main
-	./main
+rsa: rsa.c
+	gcc rsa.c -o rsa -lgmp
+	./rsa genkeys
 
 clean:
-	$(RM) *.exe
+	$(RM) rsa 
