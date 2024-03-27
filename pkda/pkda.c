@@ -12,18 +12,7 @@
 #define MAX_CONCURRENT_CONNS 5
 #define MAX_BUFFER_SIZE 10000
 
-static void print_json_object(json_t *);
 static void handle_request_public_key(json_t *);
-
-static void print_json_object(json_t *json_obj) {
-	char *json_string = json_dumps(json_obj, JSON_INDENT(2));
-	if (!json_string) {
-		perror("Error: failed to stringify json object\n");
-		return;
-	}
-	printf("%s\n", json_string);	
-	free(json_string);
-}
 
 static void handle_request_public_key(json_t *json_obj) {
 	printf("request-public-key service\n");

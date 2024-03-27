@@ -13,10 +13,15 @@ typedef struct User {
 
 User *users = NULL;
 
-void insert_user(char *, mpz_t, mpz_t);
+User *create_user(char *, mpz_t, mpz_t);
+void kill_user(User *);
+void insert_user(User *);
+void print_user(User *);
+void print_users();
+char *json_get_string(json_t *, char *);
 void add_users_from_file(char *);
 
-void insert_user(char *id, mpz_t publickey, mpz_t n) {
+User *create_user(char *id, mpz_t publickey, mpz_t n) {
 	User *user = malloc(sizeof(User));
 	true_unless_kill(user != NULL, "could not allocate memory");
 	user->id = (char *) malloc(sizeof(char)*(slen(id)+1));
@@ -24,8 +29,43 @@ void insert_user(char *id, mpz_t publickey, mpz_t n) {
 	mpz_inits(user->publickey, user->n, NULL);
 	mpz_set(user->publickey, publickey);
 	mpz_set(user->n, n);
-	user->next = users;
-	users = user;
+	return user;
+}
+
+void kill_user(User *user) {
+	mpz_clears(user->publickey, user->n, NULL);
+	free(user);
+}
+
+void insert_user(User *user) {
+	User *obj = malloc(sizeof(User));
+	true_unless_kill(obj != NULL, "could not allocate memory");
+	obj->id = user->id;
+	mpz_inits(user->publickey, user->n, NULL);
+	mpz_set(obj->publickey, user->publickey);
+	mpz_set(obj->n, user->n);
+	obj->next = users;
+	users = obj;
+	kill_user(user);
+}
+
+void print_user(User *user) {
+	printf("id: %s\n e: %Zd\n n: %Zd\n", user->id, user->publickey, user->n);
+}
+
+void print_users() {
+	User *user = users;
+	while (user != NULL) {
+		print_user(user);
+		printf("\n");
+		user = user->next;
+	}
+}
+
+char *json_get_string(json_t *json_obj, char *field) {
+	json_t *field_val = json_object_get(json_obj, field);
+	true_unless_kill(field_val != NULL && json_is_string(field_val), "a field is incorrect");
+	return (char *) json_string_value(field_val);
 }
 
 void add_users_from_file(char *filename) {
@@ -51,6 +91,36 @@ void add_users_from_file(char *filename) {
     }
     buffer[bytes_read] = '\0';
     fclose(file);
+	
+	json_error_t error;
+	json_t *json_obj = json_loads(buffer, 0, &error);
+	true_unless_kill(json_obj != NULL, "failed to parse json");
+	true_unless_kill(json_is_object(json_obj) , "file is not a json object");
+	
+	/* print_json_object(json_obj); */
 
-	/* printf("%s\n", buffer); */
+	json_t *users_array = json_object_get(json_obj, "users");
+    if (!json_is_array(users_array)) {
+        perror("Error: missing key 'users'\n");
+        json_decref(json_obj);
+        return;
+    }
+	
+    size_t index;
+    json_t *value;
+    json_array_foreach(users_array, index, value) {
+        if (json_is_object(value)) {
+			char *id = json_get_string(value, "id");
+			mpz_t publickey, n;
+			mpz_set_str(publickey, json_get_string(value, "publickey"), 10);
+			mpz_set_str(n, json_get_string(value, "n"), 10);
+			printf("%s\n\n%s\n\n\n", json_get_string(value, "publickey"), json_get_string(value, "n"));
+			User *user = create_user(id, publickey, n);
+			insert_user(user);
+        }
+    }
+
+	print_users();
+	
+	json_decref(json_obj);
 }

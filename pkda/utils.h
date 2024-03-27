@@ -2,11 +2,13 @@
 #define UTILS_H_
 
 #include <stdio.h>
+#include <jansson.h>
 
 int scmp(char *, char *);
 unsigned int stoul(char *);
 unsigned int slen(const char *);
 void true_unless_kill(int, char *);
+void print_json_object(json_t *);
 
 int scmp(char *a, char *b) {
 	char *ptr_a = a, *ptr_b = b;
@@ -43,6 +45,16 @@ void true_unless_kill(int condition, char *message) {
 		fprintf(stderr, "Error: %s\n", message);
 		exit(1);
 	}
+}
+
+void print_json_object(json_t *json_obj) {
+	char *json_string = json_dumps(json_obj, JSON_INDENT(2));
+	if (!json_string) {
+		perror("Error: failed to stringify json object\n");
+		return;
+	}
+	printf("%s\n", json_string);	
+	free(json_string);
 }
 
 #endif // UTILS_H_
