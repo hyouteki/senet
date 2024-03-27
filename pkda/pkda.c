@@ -30,6 +30,8 @@ static void handle_request_public_key(json_t *json_obj) {
 }
 
 int main(int argc, char **argv) {
+	add_users_from_file("./user_dataset.json");
+	
 	int server_sock = socket(AF_INET, SOCK_STREAM, 0);
     true_unless_kill(server_sock != -1, "could not create socket");
 	    
