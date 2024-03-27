@@ -1,38 +1,16 @@
 #include <stdio.h>
-#include <gmp.h>
 #include <stdlib.h>
+#include <gmp.h>
 #include <time.h>
 #include <assert.h>
+#include "utils.h"
 
 #define NUM_ROUNDS 20
 #define BIT_SIZE 2048
 
-static int strcmp(char *, char *);
-static unsigned int stoul(char *);
-
 static void gen_odd_num(mpz_t, gmp_randstate_t, unsigned int);
 static void gen_prime_num(mpz_t, gmp_randstate_t, unsigned int);
 static void write_key_to_file(mpz_t, mpz_t, char *, char);
-
-static int strcmp(char *a, char *b) {
-	char *ptr_a = a, *ptr_b = b;
-	while (*ptr_a && *ptr_b) {
-		if (*ptr_a != *ptr_b) return 0;
-		++ptr_a;
-		++ptr_b;
-	}
-	return *ptr_a == *ptr_b;
-}
-
-static unsigned int stoul(char *a) {
-	char *ptr = a;
-	unsigned int num = 0;
-	while (*ptr) {
-		num = num*10 + *ptr - '0';
-		++ptr;
-	}
-	return num;
-}
 
 static void gen_odd_num(mpz_t num, gmp_randstate_t state, unsigned int bit_size) {
 	mpz_urandomb(num, state, bit_size);
@@ -66,7 +44,7 @@ static void write_key_to_file(mpz_t key, mpz_t n, char *filename, char key_prefi
 
 int main(int argc, char **argv) {
 	assert(argc >= 2 && "Error: subcommand not present");
-	if (strcmp(argv[1], "genkeys")) {
+	if (scmp(argv[1], "genkeys")) {
 		mpz_t p, q, phi, n, e, d;
 		gmp_randstate_t state;
 		mpz_inits(p, q, phi, n, e, d, NULL);
@@ -96,6 +74,12 @@ int main(int argc, char **argv) {
 		gmp_printf("n: %Zd\n", n);
 		
 		mpz_clears(p, q, phi, n, e, d, NULL);
+	} else if (scmp(argv[1], "encrypt")) {
+		char *message = argv[2];
+		mpz_t e, n;
+		
+		mpz_set_str(e, argv[3], 10);
+		mpz_set_str(n, argv[3], 10);
 	}
     return 0;
 }
