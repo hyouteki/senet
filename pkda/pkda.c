@@ -4,8 +4,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <jansson.h>
+#include <gmp.h>
 #include <assert.h>
-#include "utils.h"
+#include "pkda/rsa.h"
+#include "pkda/utils.h"
 #include "pkda/service.h"
 
 #define SERVER_PORT 6666
