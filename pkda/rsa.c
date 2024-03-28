@@ -33,6 +33,15 @@ int main(int argc, char **argv) {
 		char *ciphertext = encrypt(argv[2], e, n);
 		printf("%s\n", ciphertext);
 		mpz_clears(e, n, NULL);
+	} else if (scmp(argv[1], "decrypt")) {
+		true_unless_kill(argc == 5, "invalid commands");
+		mpz_t d, n;
+		mpz_inits(d, n, NULL);
+		mpz_set_str(d, argv[3], 10);
+		mpz_set_str(n, argv[4], 10);
+		char *plaintext = decrypt(argv[2], d, n);
+		printf("%s\n", plaintext);
+		mpz_clears(d, n, NULL);
 	}
     return 0;
 }

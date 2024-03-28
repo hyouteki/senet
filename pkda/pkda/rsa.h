@@ -15,9 +15,11 @@ static unsigned int char_to_num(char);
 static char num_to_char(unsigned int);
 static unsigned int chunk_size(mpz_t);
 static char *encrypt_chunk(char *, mpz_t, mpz_t, unsigned int, unsigned int);
+static char *decrypt_chunk(char *, mpz_t, mpz_t, unsigned int, unsigned int);
 
 void genkeys(unsigned int, mpz_t, mpz_t, mpz_t);
 char *encrypt(char *, mpz_t, mpz_t);
+char *decrypt(char *, mpz_t, mpz_t);
 
 static char chars[] = {
 	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
@@ -124,26 +126,66 @@ static char *encrypt_chunk(char *plaintext, mpz_t e, mpz_t n, unsigned int l, un
 
 	char *ciphertext = (char *) malloc(sizeof(char)*(mpz_sizeinbase(c, 10)+1));
     true_unless_kill(ciphertext != NULL, "failed to allocate memory");
-
 	mpz_get_str(ciphertext, 10, c);
 
 	char *zeroes = (char *) malloc(sizeof(char)*(mpz_sizeinbase(n, 10)+1));
-	for (unsigned int i = 0; i < mpz_sizeinbase(n, 10)-mpz_sizeinbase(c, 10); ++i)
-		zeroes[i] = '0';
-
+	i = 0;
+	for (; i < mpz_sizeinbase(n, 10)-mpz_sizeinbase(c, 10); ++i) zeroes[i] = '0';
+	zeroes[i] = 0;
+	
 	mpz_clears(m, c, NULL);
 
 	return sappend(zeroes, ciphertext);
 }
 
+static char *decrypt_chunk(char *ciphertext, mpz_t d, mpz_t n, unsigned int l, unsigned int h) {
+	mpz_t c, m;
+	mpz_inits(c, m, NULL);
+
+	char *chunk = (char *) malloc(sizeof(char)*(h-l+1));
+	for (int i = 0; i < h-l; ++i) chunk[i] = ciphertext[i+l];
+	chunk[h-l] = 0;
+	mpz_set_str(c, chunk, 10);
+	
+	true_unless_kill(mpz_cmp(c, n) < 0, "ciphertext number representation exceeds the n");
+	mpz_powm(m, c, d, n);
+
+	char *plaintext_nums = (char *) malloc(sizeof(char)*(mpz_sizeinbase(m, 10)+1));
+    true_unless_kill(plaintext_nums != NULL, "failed to allocate memory");
+	mpz_get_str(plaintext_nums, 10, m);
+
+	char *plaintext = (char *) malloc(sizeof(char)*((mpz_sizeinbase(m, 10)>>1)+1));
+	for (int i = 0; i < mpz_sizeinbase(m, 10); i += 2) {
+		int num = (plaintext_nums[i]-'0')*10+plaintext_nums[i+1]-'0';
+		plaintext[i>>1] = num_to_char(num);
+	}
+
+	mpz_clears(m, c, NULL);
+	free(plaintext_nums);
+
+	return plaintext;
+}
+
 char *encrypt(char *plaintext, mpz_t e, mpz_t n) {
-	unsigned int chunk_sz = chunk_size(n);
 	char *ciphertext = "";
-	unsigned int i = 0, k = slen(plaintext)/chunk_sz;
-	do {
+	unsigned int chunk_sz = chunk_size(n), i = 0, k = slen(plaintext)/chunk_sz;
+	if (slen(plaintext)%chunk_sz != 0) ++k; 
+	while (i < k && plaintext+i) {
 		char *encrypted_chunk = encrypt_chunk(plaintext, e, n, chunk_sz*i, chunk_sz*(i+1));
 		ciphertext = sappend(ciphertext, encrypted_chunk);
 		++i;
-	} while (i < k && plaintext+i);
+	}
 	return ciphertext;
+}
+
+char *decrypt(char *ciphertext, mpz_t d, mpz_t n) {
+	char *plaintext = "";
+	unsigned int chunk_sz = mpz_sizeinbase(n, 10), i = 0, k = slen(ciphertext)/chunk_sz;
+	if (slen(ciphertext)%chunk_sz != 0) ++k; 
+	while (i < k && ciphertext+i) {
+		char *decrypted_chunk = decrypt_chunk(ciphertext, d, n, chunk_sz*i, chunk_sz*(i+1));
+		plaintext = sappend(plaintext, decrypted_chunk);
+		++i;
+	}
+	return plaintext;
 }
