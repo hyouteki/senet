@@ -1,3 +1,6 @@
+#ifndef RSA_H_
+#define RSA_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmp.h>
@@ -10,7 +13,6 @@
 
 static void gen_odd_num(mpz_t, gmp_randstate_t, unsigned int);
 static void gen_prime_num(mpz_t, gmp_randstate_t, unsigned int);
-static void write_key_to_file(mpz_t, mpz_t, char *, char);
 static unsigned int char_to_num(char);
 static char num_to_char(unsigned int);
 static unsigned int chunk_size(mpz_t);
@@ -26,21 +28,13 @@ static char chars[] = {
 	'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D',
 	'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
 	'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', ' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',',
-	'-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_',
-	'\0', '{', '|', '}'};
-
-static unsigned int nums[] = {
-	10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-	29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-	48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,
-	67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
-	86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99};
+	'8', '9', ' ', '!', '"', '#', '\n', '%', '&', '\'', '(', ')', '*', '+', ',',
+	'-', '.', '/', ':', ';', '=', '[', '\\', ']', '^', '_', '\0', '{', '|', '}'};
 
 #define NUM_CHARS sizeof(chars)/sizeof(char)
 
 static unsigned int char_to_num(char ch) {
-	for (int i = 0; i < NUM_CHARS; ++i) if (chars[i] == ch) return nums[i];
+	for (int i = 0; i < NUM_CHARS; ++i) if (chars[i] == ch) return 10+i;
 	true_unless_kill(0, "invalid char");
 }
 
@@ -60,24 +54,6 @@ static void gen_prime_num(mpz_t prime, gmp_randstate_t state, unsigned int bit_s
         gen_odd_num(prime, state, bit_size);
         if (mpz_probab_prime_p(prime, NUM_ROUNDS)) break;
     }
-}
-
-static void write_key_to_file(mpz_t key, mpz_t n, char *filename, char key_prefix) {
-	FILE *file = fopen(filename, "w");
-	assert(file != NULL && "Error: could not open file");
-
-	char *key_str = mpz_get_str(NULL, 10, key);
-	char *n_str = mpz_get_str(NULL, 10, n);
-	if (!key_str || !n_str) {
-		perror("Error: could not convert mpz to string");
-		fclose(file);
-		return;
-	}
-
-	fprintf(file, "%c:%s\n", key_prefix, key_str);
-	fprintf(file, "n:%s\n", n_str);
-	free(file);
-	fclose(file);
 }
 
 static unsigned int chunk_size(mpz_t num) {
@@ -155,11 +131,12 @@ static char *decrypt_chunk(char *ciphertext, mpz_t d, mpz_t n, unsigned int l, u
 	mpz_get_str(plaintext_nums, 10, m);
 
 	char *plaintext = (char *) malloc(sizeof(char)*((mpz_sizeinbase(m, 10)>>1)+1));
-	for (int i = 0; i < mpz_sizeinbase(m, 10); i += 2) {
+	unsigned int i = 0;
+	for (; i < mpz_sizeinbase(m, 10) && plaintext_nums[i]; i += 2) {
 		int num = (plaintext_nums[i]-'0')*10+plaintext_nums[i+1]-'0';
 		plaintext[i>>1] = num_to_char(num);
 	}
-
+	plaintext[i>>1] = 0;
 	mpz_clears(m, c, NULL);
 	free(plaintext_nums);
 
@@ -189,3 +166,5 @@ char *decrypt(char *ciphertext, mpz_t d, mpz_t n) {
 	}
 	return plaintext;
 }
+
+#endif // RSA_H_

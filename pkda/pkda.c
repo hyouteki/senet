@@ -8,11 +8,12 @@
 #include <assert.h>
 #include "pkda/rsa.h"
 #include "pkda/utils.h"
+#include "pkda/request.h"
 #include "pkda/service.h"
 
 #define SERVER_PORT 6666
 #define MAX_CONCURRENT_CONNS 5
-#define MAX_BUFFER_SIZE 10000
+#define MAX_BUFFER_SIZE 50000
 
 static void handle_request_public_key(json_t *);
 
@@ -44,8 +45,7 @@ int main(int argc, char **argv) {
 	printf("Info: socket opened successfully\n");
 	socklen_t addr_size = sizeof(server_addr);
 	while (1) {
-        int client_sock = accept(server_sock, (struct sockaddr*)&server_addr,
-								 &addr_size);
+        int client_sock = accept(server_sock, (struct sockaddr*)&server_addr, &addr_size);
         if (client_sock == -1) continue;
 		printf("Info: connected to client\n");
         
@@ -54,8 +54,9 @@ int main(int argc, char **argv) {
             char buffer[MAX_BUFFER_SIZE];
             int bytes_received;
             while ((bytes_received = recv(client_sock, buffer, sizeof(buffer), 0)) > 0) {
+				char *request = decrypt_request(buffer);
 				json_error_t error;
-				json_t *json_obj = json_loads(buffer, 0, &error);
+				json_t *json_obj = json_loads(request, 0, &error);
 				true_unless_kill(json_obj != NULL, "failed to parse json");
 				true_unless_kill(json_is_object(json_obj) ,
 								 "received message is not a json object");

@@ -22,10 +22,10 @@ int main(int argc, char **argv)
 	assert(connect(client_sock, (struct sockaddr *)&server_addr,
 				   sizeof(server_addr)) >= 0 && "Error: connection failed");
 
-	char *message = create_request_public_key_message("ida", "idb", "nonce");
-	/* char *message = "{\"name\": \"John\", \"age\": 30}"; */
-	assert(send(client_sock, message, slen(message), 0) == slen(message)
-		   && "Error: send failed");
+	char *request = create_request_public_key_message("0", "1", "nonce");
+	char *encrypted_request = encrypt_request(request);
+	assert(send(client_sock, encrypted_request, slen(encrypted_request), 0)
+		   == slen(encrypted_request) && "Error: send failed");
 	
     close(client_sock);
     return 0;

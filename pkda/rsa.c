@@ -6,6 +6,8 @@
 #include "pkda/utils.h"
 #include "pkda/rsa.h"
 
+#define MAX_KEY_FILE_LEN 10000
+
 int main(int argc, char **argv) {
 	assert(argc >= 2 && "Error: subcommand not present");
 	if (scmp(argv[1], "genkeys")) {
@@ -16,8 +18,21 @@ int main(int argc, char **argv) {
 
 		genkeys(bit_size, e, d, n);
 
-		/* write_key_to_file(e, n, "publickey.txt", 'e'); */
-		/* write_key_to_file(d, n, "privatekey.txt", 'd'); */
+		FILE *file = fopen("key.json", "w");
+		assert(file != NULL && "Error: could not open file");
+
+		char *e_str = mpz_get_str(NULL, 10, e);
+		char *d_str = mpz_get_str(NULL, 10, d);
+		char *n_str = mpz_get_str(NULL, 10, n);
+		if (!e_str || !d_str || !n_str) {
+			perror("Error: could not convert mpz to string");
+			fclose(file);
+			exit(1);
+		}
+
+		fprintf(file, "{\n    \"e\": \"%s\",\n    \"d\": \"%s\",\n"
+				"    \"n\": \"%s\"\n}", e_str, d_str, n_str);
+		free(file);
 		
 		gmp_printf("e: %Zd\n\n", e);
 		gmp_printf("d: %Zd\n\n", d);
