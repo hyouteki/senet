@@ -7,6 +7,7 @@
 int scmp(char *, char *);
 unsigned int stoul(char *);
 unsigned int slen(const char *);
+char *sappend(char *, char *);
 void true_unless_kill(int, char *);
 void print_json_object(json_t *);
 
@@ -38,6 +39,23 @@ unsigned int slen(const char *a) {
 		++ptr;
 	}
 	return len;
+}
+
+char *sappend(char *text, char *append_text) {
+    char *rop = (char *)malloc(slen(text)+slen(append_text)+1);
+	true_unless_kill(rop != NULL, "failed to allocate memory");
+    unsigned int i = 0;
+    while (text[i]) {
+        rop[i] = text[i];
+        ++i;
+    }
+    unsigned int j = 0;
+    while (append_text[j]) {
+        rop[i+j] = append_text[j];
+        ++j;
+    }
+    rop[i+j] = 0;
+    return rop;
 }
 
 void true_unless_kill(int condition, char *message) {

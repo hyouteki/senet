@@ -13,6 +13,8 @@ static void gen_prime_num(mpz_t, gmp_randstate_t, unsigned int);
 static void write_key_to_file(mpz_t, mpz_t, char *, char);
 static unsigned int char_to_num(char);
 static char num_to_char(unsigned int);
+static unsigned int chunk_size(mpz_t);
+static char *encrypt_chunk(char *, mpz_t, mpz_t, unsigned int, unsigned int);
 
 void genkeys(unsigned int, mpz_t, mpz_t, mpz_t);
 char *encrypt(char *, mpz_t, mpz_t);
@@ -76,6 +78,12 @@ static void write_key_to_file(mpz_t key, mpz_t n, char *filename, char key_prefi
 	fclose(file);
 }
 
+static unsigned int chunk_size(mpz_t num) {
+	unsigned int chunk_sz = mpz_sizeinbase(num, 10);
+	chunk_sz -= 2;
+	return chunk_sz>>1;
+}
+
 void genkeys(unsigned int bit_size, mpz_t e, mpz_t d, mpz_t n) {
 	mpz_t p, q, phi;
 	gmp_randstate_t state;
@@ -90,23 +98,26 @@ void genkeys(unsigned int bit_size, mpz_t e, mpz_t d, mpz_t n) {
 	mpz_mul(n, p, q);
 	mpz_sub_ui(p, p, 1);
 	mpz_sub_ui(q, q, 1);
-	mpz_mul(phi, p, q); // phi = (p-1)*(q-1)
+	mpz_mul(phi, p, q);
 	
-	mpz_set_ui(e, 65537); // most common value of e
-	mpz_invert(d, e, phi); // e*d mod phi = 1
+	mpz_set_ui(e, 65537);
+	mpz_invert(d, e, phi);
 
 	mpz_clears(p, q, phi, NULL);
 }
 
-char *encrypt(char *plaintext, mpz_t e, mpz_t n) {
+static char *encrypt_chunk(char *plaintext, mpz_t e, mpz_t n, unsigned int l, unsigned int h) {
 	mpz_t m, c;
 	mpz_inits(m, c, NULL);
 	mpz_set_ui(m, 0);
-	char *ptr = plaintext;
-	while (*ptr != 0) {
+
+	char *ptr = plaintext+l;
+	int i = l;
+	while (*ptr != 0 && i < h) {
 		mpz_mul_ui(m, m, 100);
 		mpz_add_ui(m, m, char_to_num(*ptr));
 		++ptr;
+		++i;
 	}
 	true_unless_kill(mpz_cmp(m, n) < 0, "plaintext number represenation exceeds the n");
 	mpz_powm(c, m, e, n);
@@ -117,5 +128,17 @@ char *encrypt(char *plaintext, mpz_t e, mpz_t n) {
 	mpz_get_str(ciphertext, 10, c);
 	mpz_clears(m, c, NULL);
 
+	return ciphertext;
+}
+
+char *encrypt(char *plaintext, mpz_t e, mpz_t n) {
+	unsigned int chunk_sz = chunk_size(n);
+	char *ciphertext = "";
+	unsigned int i = 0, k = slen(plaintext)/chunk_sz;
+	do {
+		char *encrypted_chunk = encrypt_chunk(plaintext, e, n, chunk_sz*i, chunk_sz*(i+1));
+		ciphertext = sappend(ciphertext, encrypted_chunk);
+		++i;
+	} while (i < k && plaintext+i);
 	return ciphertext;
 }
