@@ -119,16 +119,21 @@ static char *encrypt_chunk(char *plaintext, mpz_t e, mpz_t n, unsigned int l, un
 		++ptr;
 		++i;
 	}
-	true_unless_kill(mpz_cmp(m, n) < 0, "plaintext number represenation exceeds the n");
+	true_unless_kill(mpz_cmp(m, n) < 0, "plaintext number representation exceeds the n");
 	mpz_powm(c, m, e, n);
 
-	char *ciphertext = (char *) malloc(sizeof(char)*(mpz_sizeinbase(c, 10) + 2));
+	char *ciphertext = (char *) malloc(sizeof(char)*(mpz_sizeinbase(c, 10)+1));
     true_unless_kill(ciphertext != NULL, "failed to allocate memory");
 
 	mpz_get_str(ciphertext, 10, c);
+
+	char *zeroes = (char *) malloc(sizeof(char)*(mpz_sizeinbase(n, 10)+1));
+	for (unsigned int i = 0; i < mpz_sizeinbase(n, 10)-mpz_sizeinbase(c, 10); ++i)
+		zeroes[i] = '0';
+
 	mpz_clears(m, c, NULL);
 
-	return ciphertext;
+	return sappend(zeroes, ciphertext);
 }
 
 char *encrypt(char *plaintext, mpz_t e, mpz_t n) {
