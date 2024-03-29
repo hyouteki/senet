@@ -49,22 +49,22 @@ PKDA is a centralized authority which validates certificates and provides public
 > There is no need to encrypt the response via `PUBLIC_KEY` of the initiator, as that would result in confidentiality, which is unnecessary as all the information is public for anyone to access anyway.
 
 ## [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) (Rivest–Shamir–Adleman)
-> All the assymetric encrytion and decryption in PKDA are done via RSA.
+> All the asymmetric encryption and decryption in PKDA are done via RSA.
 
 As RSA requires the data to be in integer representation. Thus a custom encoding was needed to be developed. The preprocessing is as follows:
-- First the string is chunked into multiple consecutive substrings; as RSA requires the message to be less than `n` (modulus). String is chunked in such a way that every substring is of the same length and all the substring's integer representation is less than `n`. The defination of `chunk_size` can be found [here](https://github.com/hyouteki/senet/blob/80fe406788627f34b35f5d4770a395764deefc91/pkda/pkda/rsa.h#L34).
-- After the chunking, each substring is encoded into integer representation. Each character is encoded via 2 digit number and concatinated to form the integer representation. The encoding can be found [here](https://github.com/hyouteki/senet/blob/80fe406788627f34b35f5d4770a395764deefc91/pkda/pkda/rsa.h#L25-L45).
+- First the string is chunked into multiple consecutive substrings; as RSA requires the message to be less than `n` (modulus). String is chunked in such a way that every substring is of the same length and all the substring's integer representation is less than `n`. The definition of `chunk_size` can be found [here](https://github.com/hyouteki/senet/blob/80fe406788627f34b35f5d4770a395764deefc91/pkda/pkda/rsa.h#L34).
+- After the chunking, each substring is encoded into integer representation. Each character is encoded via 2 digit number and concatenated to form the integer representation. The encoding can be found [here](https://github.com/hyouteki/senet/blob/80fe406788627f34b35f5d4770a395764deefc91/pkda/pkda/rsa.h#L25-L45).
 
-Encryption of each substring happens independently of each other and other connected via a counter mode (galois) just like the one in [AES/GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) algorithm. So that two substrings containing same text should not lead to same encryption.
+Encryption of each substring happens independently of each other and other connected via a counter mode (Galois) just like the one in [AES/GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) algorithm. So that two substrings containing same text should not lead to same encryption.
 
-At the end of substring encryption the resultant is padded with leading zeroes to make it of same length as the `n`. Such that after concatination of all the substrings; a border can be drawn between substrings for decryption.
+At the end of substring encryption the resultant is padded with leading zeroes to make it of same length as the `n`. Such that after concatenation of all the substrings; a border can be drawn between substrings for decryption.
 
 > Decryption happens in same way but in reverse.<br>
 > __NOTE__: Using incorrect keys for encryption and decryption may lead to errors, as the implementation heavily relies on the encoding and using incorrect keys will break the encoding.<br>
 > Implementation of RSA can be found [here](https://github.com/hyouteki/senet/blob/main/pkda/pkda/rsa.h).
 
 ### Guide
-- __Generate keys__: This will generate keys of specified key size (default-2048) and print the relevant informations to the console (n, e: encryption key, and d: decryption key) also store the keys in json file (keys.json).
+- __Generate keys__: This will generate keys of specified key size (default-2048) and print the relevant information to the console (n, e: encryption key, and d: decryption key) also store the keys in json file (keys.json).
   ``` console
   ./rsa genkeys <key_size: optional; default-2048>
   ```
@@ -82,15 +82,15 @@ At the end of substring encryption the resultant is padded with leading zeroes t
 - Build the project using `make`.
 
 ## Guide for PKDA
-Run the pkda using `./runpkda` binary requried that the project is already built.
+Run the pkda using `./runpkda` binary required that the project is already built.
 
 ## Application
-A simple encypted chat client is made. Two users [chatserver.c](https://github.com/hyouteki/senet/blob/main/pkda/chatserver.c) and [chatclient.c](https://github.com/hyouteki/senet/blob/main/pkda/chatclient.c) chats with each other. Chat is initiated by the `chatclient`. Both the users do not know each others public key for encryption and decryption. Thus they make requests with PKDA and receive each others public keys and proceeds with the chatting.
+A simple encrypted chat client is made. Two users [chatserver.c](https://github.com/hyouteki/senet/blob/main/pkda/chatserver.c) and [chatclient.c](https://github.com/hyouteki/senet/blob/main/pkda/chatclient.c) chats with each other. Chat is initiated by the `chatclient`. Both the users do not know each others public key for encryption and decryption. Thus they make requests with PKDA and receive each others public keys and proceeds with the chatting.
 
 ![Encrypted chat clients](https://github.com/hyouteki/senet/assets/108230497/d9bcb7f5-9429-42da-95e5-ee1a2b0fa415)
 
 ### Guide
-- Open three seperate terminals in this [directory](https://github.com/hyouteki/senet/tree/main/pkda).
+- Open three separate terminals in this [directory](https://github.com/hyouteki/senet/tree/main/pkda).
   - Launch PKDA on one using `./runpkda`.
   - Launch chatserver on another using `make runchatserver`.
   - And lastly run `make runchatclient` on the last terminal.
