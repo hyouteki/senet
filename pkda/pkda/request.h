@@ -18,6 +18,8 @@
 #define PKDA_N "662301898900086280563369235571503136063408961425424293073766271072781807911678567160469252002508440143033677125709166319850891202267909129323826679019242540749194345034060529226377321735363290110199045801178998513803893245381318099967591575898939445190291940949507376209765831367454894205894045180121495499261365443592353041143477594699444475913508662053377142533418413333418718088874085795965156331233623965528933874295463858380678888109306494764712337200096926174855576311330169743585133175566774877252591191731066635041723346935277660875617341933673432178798773584458993865292096053045824574821342933398760069773566992849729936703021425032724505258874534588255854732984011088966682000696166656261128352109646804570768175716261804095940503220172010985248168359409730123644594297470268721009009570923252673603423160225737807263165170523164878458713262213757728917880939881170181755268413347133435655415491539621965171531718197592141946475449176562814265428561765008381698230810347873879846931572180937064757014711991322407076881505615362132288518673400936122704321154482695758374681480937489070854176890104436257311623381762185073814627159219122440331505399890649750450765175765350404092862241528856083003711741300960236860359247271"
 
 static char *create_request_public_key_message(char *, char *, char *);
+char *encrypt_message(char *, char *, char *);
+char *decrypt_message(char *, char *, char *);
 char *encrypt_request(char *);
 char *decrypt_response(char *);
 void request_public_key(char *, char *, char *, char **, char **, int);
@@ -33,26 +35,33 @@ static char *create_request_public_key_message(char *id_initiator,
 	return request;
 }
 
-char *encrypt_request(char *request) {
+char *encrypt_message(char *message, char *e_str, char *n_str) {	
 	mpz_t e, n;
 	mpz_inits(e, n, NULL);
-	mpz_set_str(e, PKDA_E, 10);
-	mpz_set_str(n, PKDA_N, 10);
-	char *encrypted_request = encrypt(request, e, n);
+	mpz_set_str(e, e_str, 10);
+	mpz_set_str(n, n_str, 10);
+	char *encrypted_message = encrypt(message, e, n);
 	mpz_clears(e, n, NULL);
-	return encrypted_request;
+	return encrypted_message;
+}
+
+char *decrypt_message(char *encrypted_message, char *d_str, char *n_str) {
+	mpz_t d, n;
+	mpz_inits(d, n, NULL);
+	mpz_set_str(d, d_str, 10);
+	mpz_set_str(n, n_str, 10);
+	char *message = decrypt(encrypted_message, d, n);
+	mpz_clears(d, n, NULL);
+	return message;
+}
+
+char *encrypt_request(char *request) {
+	return encrypt_message(request, PKDA_E, PKDA_N);
 }
 
 char *decrypt_response(char *encrypted_response) {
-	mpz_t e, n;
-	mpz_inits(e, n, NULL);
-	mpz_set_str(e, PKDA_E, 10);
-	mpz_set_str(n, PKDA_N, 10);
-	char *response = decrypt(encrypted_response, e, n);
-	mpz_clears(e, n, NULL);
-	return response;
+	return decrypt_message(encrypted_response, PKDA_E, PKDA_N);
 }
-
 
 void request_public_key(char * id_initiator, char *id_requested, char *nonce_sent,
 						char **e, char **n, int debug) {
