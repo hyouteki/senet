@@ -8,6 +8,7 @@
 #include "pkda/request.h"
 
 #define SERVER_PORT 6666
+#define MAX_BUFFER_SIZE 10000
 
 int main(int argc, char **argv)
 {
@@ -23,10 +24,20 @@ int main(int argc, char **argv)
 				   sizeof(server_addr)) >= 0 && "Error: connection failed");
 
 	char *request = create_request_public_key_message("0", "1", "nonce");
+	printf("Info: REQUEST START\n%s\nInfo: REQUEST END\n", request);
 	char *encrypted_request = encrypt_request(request);
 	assert(send(client_sock, encrypted_request, slen(encrypted_request), 0)
 		   == slen(encrypted_request) && "Error: send failed");
+	printf("Info: request sent\n");
 	
+	unsigned int bytes_received;
+	char buffer[MAX_BUFFER_SIZE] = {0};
+	while ((bytes_received = recv(client_sock, buffer, MAX_BUFFER_SIZE, 0)) > 0) {
+		printf("Info: response received\n");
+		buffer[bytes_received] = 0;
+		char *response = decrypt_response(buffer);
+		printf("Info: RESPONSE START\n%s\nInfo: RESPONSE END\n", response);
+	}
     close(client_sock);
     return 0;
 }

@@ -1,3 +1,6 @@
+#ifndef PKDA_SERVICE_H_
+#define PKDA_SERVICE_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmp.h>
@@ -11,50 +14,32 @@ typedef struct User {
 	struct User* next;
 } User;
 
-User *users = NULL;
-
-User *create_user(char *, mpz_t, mpz_t);
-void kill_user(User *);
-void insert_user(User *);
+void insert_user(User **, char *, mpz_t, mpz_t);
 void print_user(User *);
-void print_users();
-char *json_get_string(json_t *, char *);
-void add_users_from_file(char *);
+void print_users(User **);
+User *get_user(User **, char *);
+void add_users_from_file(User **, char *);
 
-User *create_user(char *id, mpz_t publickey, mpz_t n) {
-	User *user = malloc(sizeof(User));
+void insert_user(User **users, char *id, mpz_t publickey, mpz_t n) {
+	User *user = (User *) malloc(sizeof(User));
 	true_unless_kill(user != NULL, "failed to allocate memory");
 	user->id = (char *) malloc(sizeof(char)*(slen(id)+1));
-	user->id = id;
+	for (int i = 0; i < slen(id); ++i) user->id[i] = id[i];
+	user->id[slen(id)] = 0;
 	mpz_inits(user->publickey, user->n, NULL);
 	mpz_set(user->publickey, publickey);
 	mpz_set(user->n, n);
-	return user;
-}
-
-void kill_user(User *user) {
-	mpz_clears(user->publickey, user->n, NULL);
-	free(user);
-}
-
-void insert_user(User *user) {
-	User *obj = malloc(sizeof(User));
-	true_unless_kill(obj != NULL, "failed to allocate memory");
-	obj->id = user->id;
-	mpz_inits(obj->publickey, obj->n, NULL);
-	mpz_set(obj->publickey, user->publickey);
-	mpz_set(obj->n, user->n);
-	obj->next = users;
-	users = obj;
-	kill_user(user);
+	user->next = *users;
+	*users = user;
 }
 
 void print_user(User *user) {
-	gmp_printf("id: %s\n e: %Zd\n n: %Zd\n", user->id, user->publickey, user->n);
+	printf("id: %s\n", user->id);
+	gmp_printf(" e: %Zd\n n: %Zd\n", user->publickey, user->n);
 }
 
-void print_users() {
-	User *user = users;
+void print_users(User **users) {
+	User *user = *users;
 	while (user != NULL) {
 		print_user(user);
 		gmp_printf("\n");
@@ -62,13 +47,16 @@ void print_users() {
 	}
 }
 
-char *json_get_string(json_t *json_obj, char *field) {
-	json_t *field_val = json_object_get(json_obj, field);
-	true_unless_kill(field_val != NULL && json_is_string(field_val), "a field is incorrect");
-	return (char *) json_string_value(field_val);
+User *get_user(User **users, char *id) {
+	User *user = *users;
+	while (user != NULL) {
+		if (scmp(id, user->id)) return user;
+		user = user->next;
+	}
+	return NULL;
 }
 
-void add_users_from_file(char *filename) {
+void add_users_from_file(User **users, char *filename) {
 	FILE *file = fopen(filename, "rb");
 	true_unless_kill(file != NULL, "could not open file");
 
@@ -108,18 +96,22 @@ void add_users_from_file(char *filename) {
 	
     size_t index;
     json_t *value;
+	
     json_array_foreach(users_array, index, value) {
         if (json_is_object(value)) {
 			char *id = json_get_string(value, "id");
 			mpz_t publickey, n;
+			mpz_inits(publickey, n, NULL);
 			mpz_set_str(publickey, json_get_string(value, "publickey"), 10);
 			mpz_set_str(n, json_get_string(value, "n"), 10);
-			User *user = create_user(id, publickey, n);
-			insert_user(user);
+			insert_user(users, id, publickey, n);
+			mpz_clears(publickey, n, NULL);
         }
     }
 
-	/* print_users(); */
+	/* print_users(users); */
 	
 	json_decref(json_obj);
 }
+
+#endif // PKDA_SERVICE_H_

@@ -20,9 +20,9 @@ char *create_request_public_key_message(char *id_initiator,
 										char *id_requested, char *nonce) {
 	char *request = (char *) malloc (sizeof(char) * MAX_REQUEST_LEN);
 	assert(request && "Error: cannot allocate memory");
-	sprintf(request, "{\"service\":\"request-public-key\","
-			"\"id-initiator\":\"%s\",\"id-requested\":\"%s\","
-			"\"time\":%lu,\"nonce\":\"%s\"}", id_initiator,
+	sprintf(request, "{\n    \"service\": \"request-public-key\",\n"
+			"    \"id-initiator\": \"%s\",\n    \"id-requested\": \"%s\",\n"
+			"    \"time\": %lu,\n    \"nonce\": \"%s\"\n}", id_initiator,
 			id_requested, (unsigned long) time(NULL), nonce);
 	return request;
 }

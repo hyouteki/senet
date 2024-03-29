@@ -15,14 +15,37 @@
 #define MAX_CONCURRENT_CONNS 5
 #define MAX_BUFFER_SIZE 50000
 
-static void handle_request_public_key(json_t *);
+User *users = NULL;
 
-static void handle_request_public_key(json_t *json_obj) {
-	printf("request-public-key service\n");
+static void handle_request_public_key(json_t *, int);
+
+static void handle_request_public_key(json_t *json_obj, int client_sock) {
+    char *id_initiator = json_get_string(json_obj, "id-initiator");
+    char *id_requested = json_get_string(json_obj, "id-requested");
+    char *nonce = json_get_string(json_obj, "nonce");
+	User *user_requested = get_user(&users, id_requested);
+
+	char *e_str = mpz_get_str(NULL, 10, user_requested->publickey);
+	char *n_str = mpz_get_str(NULL, 10, user_requested->n);
+	if (!e_str || !n_str) {
+		perror("Error: could not convert mpz to string");
+		exit(1);
+	}
+	
+	char response[MAX_BUFFER_SIZE];
+	sprintf(response, "{\n    \"service\": \"request-public-key\",\n"
+			"    \"id-requested\": \"%s\",\n    \"e\": \"%s\",\n"
+			"    \"n\": \"%s\",\n    \"nonce\":\"%s\"\n}", id_requested,
+			e_str, n_str, nonce);
+	printf("Info: RESPONSE START\n%s\nInfo: RESPONSE END\n", response);
+	char *encrypted_response = encrypt_response(response);
+	
+	send(client_sock, encrypted_response, slen(encrypted_response)+1, 0);
+	printf("Info: response sent\n");
 }
 
 int main(int argc, char **argv) {
-	add_users_from_file("./user_dataset.json");
+	add_users_from_file(&users, "./user_dataset.json");
 	
 	int server_sock = socket(AF_INET, SOCK_STREAM, 0);
     true_unless_kill(server_sock != -1, "could not create socket");
@@ -44,6 +67,7 @@ int main(int argc, char **argv) {
 	
 	printf("Info: socket opened successfully\n");
 	socklen_t addr_size = sizeof(server_addr);
+	
 	while (1) {
         int client_sock = accept(server_sock, (struct sockaddr*)&server_addr, &addr_size);
         if (client_sock == -1) continue;
@@ -60,16 +84,15 @@ int main(int argc, char **argv) {
 				true_unless_kill(json_obj != NULL, "failed to parse json");
 				true_unless_kill(json_is_object(json_obj) ,
 								 "received message is not a json object");
-
-				print_json_object(json_obj);
 				
-				json_t *service_val = json_object_get(json_obj, "service");
-				true_unless_kill(service_val != NULL && json_is_string(service_val),
-								 "service is not a valid string field");
-				char *service = (char *) json_string_value(service_val);
+				printf("Info: REQUEST START\n");
+				print_json_object(json_obj);
+				printf("Info: REQUEST END\n");
+
+				char *service = json_get_string(json_obj, "service");
 
 				if (scmp(service, "request-public-key")) {
-					handle_request_public_key(json_obj);
+					handle_request_public_key(json_obj, client_sock);
 				}
 
 				json_decref(json_obj);

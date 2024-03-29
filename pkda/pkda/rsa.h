@@ -1,5 +1,5 @@
-#ifndef RSA_H_
-#define RSA_H_
+#ifndef PKDA_RSA_H_
+#define PKDA_RSA_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +15,6 @@ static void gen_odd_num(mpz_t, gmp_randstate_t, unsigned int);
 static void gen_prime_num(mpz_t, gmp_randstate_t, unsigned int);
 static unsigned int char_to_num(char);
 static char num_to_char(unsigned int);
-static unsigned int chunk_size(mpz_t);
 static char *encrypt_chunk(char *, mpz_t, mpz_t, unsigned int, unsigned int, mpz_t);
 static char *decrypt_chunk(char *, mpz_t, mpz_t, unsigned int, unsigned int, mpz_t);
 
@@ -32,6 +31,7 @@ static char chars[] = {
 	'-', '.', '/', ':', ';', '=', '[', '\\', ']', '^', '_', '\0', '{', '|', '}'};
 
 #define NUM_CHARS sizeof(chars)/sizeof(char)
+#define chunk_size(num) ((mpz_sizeinbase(num, 10) - 2)>>1)
 
 static unsigned int char_to_num(char ch) {
 	for (int i = 0; i < NUM_CHARS; ++i) if (chars[i] == ch) return 10+i;
@@ -54,12 +54,6 @@ static void gen_prime_num(mpz_t prime, gmp_randstate_t state, unsigned int bit_s
         gen_odd_num(prime, state, bit_size);
         if (mpz_probab_prime_p(prime, NUM_ROUNDS)) break;
     }
-}
-
-static unsigned int chunk_size(mpz_t num) {
-	unsigned int chunk_sz = mpz_sizeinbase(num, 10);
-	chunk_sz -= 2;
-	return chunk_sz>>1;
 }
 
 void genkeys(unsigned int bit_size, mpz_t e, mpz_t d, mpz_t n) {
@@ -98,7 +92,7 @@ static char *encrypt_chunk(char *plaintext, mpz_t e, mpz_t n, unsigned int l, un
 		++i;
 	}
 	true_unless_kill(mpz_cmp(m, n) < 0, "plaintext number representation exceeds the n");
-
+	
 	mpz_xor(m, m, counter);
 	mpz_add_ui(counter, counter, 1);
 	
@@ -126,13 +120,13 @@ static char *decrypt_chunk(char *ciphertext, mpz_t d, mpz_t n, unsigned int l, u
 	for (int i = 0; i < h-l; ++i) chunk[i] = ciphertext[i+l];
 	chunk[h-l] = 0;
 	mpz_set_str(c, chunk, 10);
-	
 	true_unless_kill(mpz_cmp(c, n) < 0, "ciphertext number representation exceeds the n");
+	
 	mpz_powm(m, c, d, n);
 
 	mpz_xor(m, m, counter);
 	mpz_add_ui(counter, counter, 1);
-
+	
 	char *plaintext_nums = (char *) malloc(sizeof(char)*(mpz_sizeinbase(m, 10)+1));
     true_unless_kill(plaintext_nums != NULL, "failed to allocate memory");
 	mpz_get_str(plaintext_nums, 10, m);
@@ -182,4 +176,4 @@ char *decrypt(char *ciphertext, mpz_t d, mpz_t n) {
 	return plaintext;
 }
 
-#endif // RSA_H_
+#endif // PKDA_RSA_H_
