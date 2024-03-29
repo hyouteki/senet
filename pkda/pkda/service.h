@@ -18,6 +18,7 @@ void insert_user(User **, char *, mpz_t, mpz_t);
 void print_user(User *);
 void print_users(User **);
 User *get_user(User **, char *);
+json_t *read_json_file(char *);
 void add_users_from_file(User **, char *);
 
 void insert_user(User **users, char *id, mpz_t publickey, mpz_t n) {
@@ -56,7 +57,7 @@ User *get_user(User **users, char *id) {
 	return NULL;
 }
 
-void add_users_from_file(User **users, char *filename) {
+json_t *read_json_file(char *filename) {
 	FILE *file = fopen(filename, "rb");
 	true_unless_kill(file != NULL, "could not open file");
 
@@ -68,6 +69,7 @@ void add_users_from_file(User **users, char *filename) {
     if (!buffer) {
         perror("Error: failed to allocate memory\n");
         fclose(file);
+	    exit(1);
     }
 
     size_t bytes_read = fread(buffer, 1, file_size, file);
@@ -75,7 +77,7 @@ void add_users_from_file(User **users, char *filename) {
         perror("Error: failed to read entire file\n");
         fclose(file);
         free(buffer);
-		return;
+		exit(1);
     }
     buffer[bytes_read] = '\0';
     fclose(file);
@@ -84,6 +86,12 @@ void add_users_from_file(User **users, char *filename) {
 	json_t *json_obj = json_loads(buffer, 0, &error);
 	true_unless_kill(json_obj != NULL, "failed to parse json");
 	true_unless_kill(json_is_object(json_obj) , "file is not a json object");
+
+	return json_obj;
+}
+
+void add_users_from_file(User **users, char *filename) {
+	json_t *json_obj = read_json_file(filename);
 	
 	/* print_json_object(json_obj); */
 
