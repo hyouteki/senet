@@ -1,3 +1,4 @@
+RM := $(if $(filter Windows_NT, $(OS)), del /Q /F, rm -f)
 CFLAGS := -lgmp -ljansson
 
 default: build
