@@ -42,8 +42,14 @@
   ```
 
 ## Quick start
+### GNU/Linux
+```bash
+bash SETUP.sh
+bash BUILD.sh
+```
+### Windows
 - Install [FASM](https://flatassembler.net/download.php)
 - Build the project using `make`
-
+	
 ## References
 - Hash function: http://www.cse.yorku.ca/~oz/hash.html
