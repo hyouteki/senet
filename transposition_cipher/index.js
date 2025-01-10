@@ -29,21 +29,59 @@ function writeStringToMemory(context, string, offset) {
 }
 
 WebAssembly.instantiateStreaming(fetch("module.wasm"), {
-    env: {}
+    env: {
+		cstrlen: (textPtr) => cstrlen(globalContext, textPtr, maxLength=1024)
+	}
 }).then((wasm) => {
     console.log("INFO: wasm module loaded");
     globalContext.wasm = wasm;
     globalContext.exports = wasm.instance.exports;
-	
-    const hashPtr = 1024;
-    writeStringToMemory(globalContext, "Hello World", hashPtr);
-    const resultDiv = document.getElementById("result");
-    const hashResult = wasm.instance.exports.hash(hashPtr) >>> 0;
-	console.log(Transposition_Cipher);
-    const transformedResult = Transposition_Cipher.transformHash(globalContext, hashResult);
-	const retransformedResult = Transposition_Cipher.retransformHash(globalContext, transformedResult);
-	resultDiv.textContent += `Raw Hash: ${hashResult}, Transformed Hash: ${transformedResult}, ReTransformed Hash: ${retransformedResult}, Equality Check: ${hashResult === retransformedResult}`;
-
 }).catch((err) => {
     console.error("ERROR: could not load WebAssembly module:", err);
+});
+
+
+document.getElementById("execute-btn").addEventListener("click", () => {
+    const mode = document.getElementById("mode").value;
+    const inputText = document.getElementById("input-text").value.trim();
+    const keyLength = parseInt(document.getElementById("key-length").value) || null;
+    const key = document.getElementById("key").value.trim().split(" ").map(Number).filter(Boolean);
+    const outputDiv = document.getElementById("output");
+
+    const cipher = {
+        encrypt: (text, key) => `Encrypted: ${text} (Key: ${key.join(", ")})`,
+        decrypt: (text, key) => `Decrypted: ${text} (Key: ${key.join(", ")})`,
+        hash: (text) => `Hash: ${text}`,
+        bruteforce: (text) => `Brute-forced plaintext: ${text}`
+    };
+
+    try {
+        let result;
+        switch (mode) {
+        case "encrypt":
+            if (!keyLength || !key.length) throw new Error("Key length and key are required for encryption.");
+            result = cipher.encrypt(inputText, key);
+            break;
+        case "decrypt":
+            if (!keyLength || !key.length) throw new Error("Key length and key are required for decryption.");
+            result = cipher.decrypt(inputText, key);
+            break;
+        case "hash":
+			const hashPtr = 1024;
+			writeStringToMemory(globalContext, "Hello World", hashPtr);
+			const resultDiv = document.getElementById("result");
+			const hashResult = globalContext.exports.hash(hashPtr) >>> 0;
+			console.log(Transposition_Cipher);
+			result = Transposition_Cipher.transformHash(globalContext, hashResult);
+            break;
+        case "bruteforce":
+            result = cipher.bruteforce(inputText);
+            break;
+        default:
+            throw new Error("Invalid mode selected.");
+        }
+        outputDiv.textContent = result;
+    } catch (error) {
+        outputDiv.textContent = `Error: ${error.message}`;
+    }
 });

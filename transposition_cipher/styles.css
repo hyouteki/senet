@@ -1,0 +1,125 @@
+@font-face {
+	font-family: "Iosevka";
+	src: url("resources/Iosevka-Thin-01.ttf") format("truetype");
+}
+
+:root {
+    --primary-color: #58a6ff;
+}
+
+* {
+	font-family: Iosevka;
+}
+
+body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+	padding-top: 0px;
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.section {
+	width: 100%;
+	max-width: 100%;
+}
+
+.section-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.input-group label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+input, textarea, select, button {
+    width: 100%;
+    padding: 10px;
+	font-size: 1rem;
+    margin-bottom: 10px;
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+	box-sizing: border-box;
+}
+
+select {
+	color: #c9d1d9;
+}
+
+input, textarea {
+	color: #c9d1d9;
+}
+
+input::placeholder, textarea::placeholder {
+	color: #c9d1d9;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+button {
+    background-color: var(--primary-color);
+	color: #000;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--primary-color);
+}
+
+.output {
+    padding: 10px;
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+.references {
+    margin-top: 20px;
+    font-size: 1.0rem;
+}
+
+.references ul {
+    padding-left: 20px;
+}
+
+.footer {
+    margin-top: 30px;
+    padding-top: 10px;
+    border-top: 1px solid #30363d;
+    text-align: center;
+    font-size: 0.8rem;
+    color: ##c9d1d9;
+}

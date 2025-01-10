@@ -1,6 +1,9 @@
 #define HASH_LEN 20
 #define MAX_KEY_LEN 9
 
+// imported APIs
+unsigned int cstrlen(char *input);
+
 // exported APIs
 unsigned long hash(char *input);
 int hash_len();
