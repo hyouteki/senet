@@ -50,47 +50,6 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById("execute-btn").addEventListener("click", () => {
-            const mode = document.getElementById("mode").value;
-            const inputText = document.getElementById("input-text").value.trim();
-            const keyLength = parseInt(document.getElementById("key-length").value) || null;
-            const key = document.getElementById("key").value.trim().split(" ").map(Number).filter(Boolean);
-            const outputDiv = document.getElementById("output");
-
-            const cipher = {
-                encrypt: (text, key) => `Encrypted: ${text} (Key: ${key.join(", ")})`,
-                decrypt: (text, key) => `Decrypted: ${text} (Key: ${key.join(", ")})`,
-                hash: (text) => `Hash: ${text}`,
-                bruteforce: (text) => `Brute-forced plaintext: ${text}`
-            };
-
-            try {
-                let result;
-                switch (mode) {
-                    case "encrypt":
-                        if (!keyLength || !key.length) throw new Error("Key length and key are required for encryption.");
-                        result = cipher.encrypt(inputText, key);
-                        break;
-                    case "decrypt":
-                        if (!keyLength || !key.length) throw new Error("Key length and key are required for decryption.");
-                        result = cipher.decrypt(inputText, key);
-                        break;
-                    case "hash":
-                        result = cipher.hash(inputText);
-                        break;
-                    case "bruteforce":
-                        result = cipher.bruteforce(inputText);
-                        break;
-                    default:
-                        throw new Error("Invalid mode selected.");
-                }
-                outputDiv.textContent = result;
-            } catch (error) {
-                outputDiv.textContent = `Error: ${error.message}`;
-            }
-        });
-    </script>
 	<script type="module" src="index.js"></script>
   </body>
 </html>
