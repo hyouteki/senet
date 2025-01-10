@@ -1,11 +1,8 @@
 (module
-  (type (;0;) (func (param i32)))
-  (type (;1;) (func (param i32) (result i32)))
-  (import "env" "print" (func $print (type 0)))
-  (func $hash (type 1) (param i32) (result i32)
+  (type (;0;) (func (param i32) (result i32)))
+  (type (;1;) (func (result i32)))
+  (func $hash (type 0) (param i32) (result i32)
     (local i32 i32)
-    local.get 0
-    call $print
     block  ;; label = @1
       local.get 0
       i32.load8_u
@@ -42,7 +39,10 @@
       br_if 0 (;@1;)
     end
     local.get 2)
+  (func $hash_len (type 1) (result i32)
+    i32.const 20)
   (memory (;0;) 2)
   (global $__stack_pointer (mut i32) (i32.const 66560))
   (export "memory" (memory 0))
-  (export "hash" (func $hash)))
+  (export "hash" (func $hash))
+  (export "hash_len" (func $hash_len)))

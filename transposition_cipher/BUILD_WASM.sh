@@ -3,7 +3,7 @@ set -x -e
 
 MODULE_NAME="module"
 WARNS=("all" "extra" "switch-enum")
-EXPORT_SYMBOLS=("hash")
+EXPORT_SYMBOLS=("hash", "hash_len")
 
 PORT=8000
 
