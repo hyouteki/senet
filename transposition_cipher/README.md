@@ -1,3 +1,6 @@
+> Wasm version of this tool is available at [lqshy/transposition-cipher - hyouteki](https://github.com/lqshy/transposition-cipher) and deployed at https://hyouteki.github.io/toys/transposition-cipher/.
+---
+
 ## Transposition cipher
 - Encryption & decryption using transposition. 
 - Developing the software to launch a brute-force attack to discover the key. 
